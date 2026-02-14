@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { User, Star, Settings, LogOut, Search, Bell, MessageSquare } from 'lucide-react';
+import { User, Star, Settings, LogOut, Search, Bell, MessageSquare, LayoutDashboard, HeartPulse, Microscope, Library, Newspaper, Users, Image, Briefcase, FileText } from 'lucide-react';
 import { useState } from 'react';
 
 const NavItem = ({ href, active, children, icon: Icon, badge }) => {
@@ -141,7 +141,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <NavItem
                                 href={route('dashboard')}
                                 active={route().current('dashboard')}
-                                icon={IconOverview}
+                                icon={LayoutDashboard}
                             >
                                 Overview
                             </NavItem>
@@ -149,19 +149,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         <li>
                             <NavItem
-                                href={route('forum')}
-                                active={route().current('forum')}
-                                icon={IconDoc}
-                            >
-                                Forum
-                            </NavItem>
-                        </li>
-
-                        <li>
-                            <NavItem
                                 href={route('messages')}
                                 active={route().current('messages')}
-                                icon={IconMessage}
+                                icon={MessageSquare}
                                 badge={6}
                             >
                                 Messages
@@ -172,7 +162,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <NavItem
                                 href={route('profile.edit')}
                                 active={route().current('profile.edit')}
-                                icon={IconLock}
+                                icon={Settings}
                             >
                                 Settings
                             </NavItem>
@@ -182,29 +172,74 @@ export default function AuthenticatedLayout({ header, children }) {
                     <ul className="mt-5 space-y-2 border-t border-gray-200 pt-5 dark:border-gray-700">
                         <li>
                             <NavItem
+                                href={route('health-tips')}
+                                active={route().current('health-tips')}
+                                icon={HeartPulse}
+                            >
+                                Health Tips
+                            </NavItem>
+                        </li>
+                        <li>
+                            <NavItem
+                                href={route('research-tips')}
+                                active={route().current('research-tips')}
+                                icon={Microscope}
+                            >
+                                Research Tips
+                            </NavItem>
+                        </li>
+                        <li>
+                            <NavItem
+                                href={route('pt-library')}
+                                active={route().current('pt-library')}
+                                icon={Library}
+                            >
+                                PT. Library
+                            </NavItem>
+                        </li>
+                        <li>
+                            <NavItem
+                                href={route('hot-news')}
+                                active={route().current('hot-news')}
+                                icon={Newspaper}
+                            >
+                                Hot News
+                            </NavItem>
+                        </li>
+                        <li>
+                            <NavItem
+                                href={route('my-students')}
+                                active={route().current('my-students')}
+                                icon={Users}
+                            >
+                                My Students
+                            </NavItem>
+                        </li>
+                        <li>
+                            <NavItem
+                                href={route('gallery')}
+                                active={route().current('gallery')}
+                                icon={Image}
+                            >
+                                Gallery
+                            </NavItem>
+                        </li>
+                        <li>
+                            <NavItem
+                                href={route('opportunities')}
+                                active={route().current('opportunities')}
+                                icon={Briefcase}
+                            >
+                                Opportunities
+                            </NavItem>
+                        </li>
+                        <li>
+                            <NavItem
                                 href={route('docs.icons')}
                                 active={route().current('docs.icons')}
-                                icon={IconDoc}
+                                icon={FileText}
                             >
                                 Docs
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('blogs')}
-                                active={route().current('blogs')}
-                                icon={IconDoc}
-                            >
-                                Blogs
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('components')}
-                                active={route().current('components')}
-                                icon={IconDoc}
-                            >
-                                Components
                             </NavItem>
                         </li>
                     </ul>
@@ -399,8 +434,8 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
                 </header>
 
-                <main className="min-h-[calc(100vh-72px)] bg-gradient-to-b from-emerald-50/60 via-gray-50 to-gray-100 px-4 py-6 dark:from-gray-900 dark:via-gray-950 dark:to-black sm:px-6 lg:px-8">
-                    <div className="mx-auto max-w-7xl">
+                <main className="min-h-[calc(100vh-72px)] bg-gradient-to-b from-emerald-50/60 via-gray-50 to-gray-100 px-4 py-6 dark:from-gray-900 dark:via-gray-950 dark:to-black sm:px-6 lg:px-10">
+                    <div className="mx-auto w-full max-w-[1600px]">
                         {children}
                     </div>
                 </main>

@@ -6,6 +6,11 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OnboardingCountriesController;
+use App\Http\Controllers\HealthTipController;
+use App\Http\Controllers\ResearchTipController;
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\NewsletterController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -67,6 +72,29 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
     Route::get('/components', function () {
         return Inertia::render('Components');
     })->name('components');
+
+    Route::get('/health-tips', [HealthTipController::class, 'index'])->name('health-tips');
+    Route::get('/health-tips/{id}', [HealthTipController::class, 'show'])->name('health-tips.show');
+
+    Route::get('/research-tips', [ResearchTipController::class, 'index'])->name('research-tips');
+    Route::get('/research-tips/{slug}', [ResearchTipController::class, 'show'])->name('research-tips.show');
+
+    Route::get('/pt-library', [BookController::class, 'index'])->name('pt-library');
+
+    Route::get('/hot-news', [NewsController::class, 'index'])->name('hot-news');
+    Route::get('/hot-news/{slug}', [NewsController::class, 'show'])->name('hot-news.show');
+    Route::post('/hot-news/{news}/comments', [NewsCommentController::class, 'store'])->name('news.comments.store');
+    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
+    Route::get('/my-students', function () {
+        return Inertia::render('MyStudents/Index');
+    })->name('my-students');
+
+    Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
+
+    Route::get('/opportunities', function () {
+        return Inertia::render('Opportunities/Index');
+    })->name('opportunities');
 });
 
 require __DIR__.'/auth.php';
