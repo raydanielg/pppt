@@ -58,7 +58,12 @@ class HandleInertiaRequests extends Middleware
         $avatarUrl = null;
         if ($user) {
             if ($user->avatar_path) {
-                $avatarUrl = Storage::url($user->avatar_path);
+                $avatarPath = (string) $user->avatar_path;
+                if (str_starts_with($avatarPath, 'http://') || str_starts_with($avatarPath, 'https://')) {
+                    $avatarUrl = $avatarPath;
+                } else {
+                    $avatarUrl = url('storage/'.ltrim($avatarPath, '/'));
+                }
             } else {
                 $name = trim((string) $user->name);
                 $avatarUrl = 'https://ui-avatars.com/api/?name='.urlencode($name !== '' ? $name : 'User').'&background=065f46&color=ffffff&bold=true&size=128';
