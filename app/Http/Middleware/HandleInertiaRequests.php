@@ -62,7 +62,7 @@ class HandleInertiaRequests extends Middleware
                 if (str_starts_with($avatarPath, 'http://') || str_starts_with($avatarPath, 'https://')) {
                     $avatarUrl = $avatarPath;
                 } else {
-                    $avatarUrl = url('storage/'.ltrim($avatarPath, '/'));
+                    $avatarUrl = '/storage/'.ltrim($avatarPath, '/');
                 }
             } else {
                 $name = trim((string) $user->name);

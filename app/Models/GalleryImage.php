@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class GalleryImage extends Model
 {
@@ -21,7 +20,7 @@ class GalleryImage extends Model
             return $value;
         }
 
-        return Storage::disk('public')->url($value);
+        return '/storage/'.ltrim($value, '/');
     }
 
     public function category()
