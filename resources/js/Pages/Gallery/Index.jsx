@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Camera, Image as ImageIcon, LayoutGrid, Maximize2, X, ChevronRight, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function Index({ categories, all_images }) {
+export default function Index({ categories = [], all_images = [] }) {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedImage, setSelectedImage] = useState(null);
 
     const filteredImages = selectedCategory === 'all' 
         ? all_images 
-        : all_images.filter(img => img.category.slug === selectedCategory);
+        : all_images.filter((img) => img?.category?.slug === selectedCategory);
 
     return (
         <AuthenticatedLayout>
@@ -88,7 +88,7 @@ export default function Index({ categories, all_images }) {
                                 
                                 <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
                                     <span className="inline-block px-3 py-1 bg-amber-400 text-amber-950 text-[9px] font-black uppercase rounded-full mb-3">
-                                        {image.category.name}
+                                        {image?.category?.name ?? 'Uncategorized'}
                                     </span>
                                     <h3 className="text-white font-black text-lg leading-tight mb-2">
                                         {image.title}
@@ -137,7 +137,7 @@ export default function Index({ categories, all_images }) {
                                 />
                                 <div className="absolute bottom-0 left-0 right-0 p-10 md:p-16 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                                     <span className="inline-block px-4 py-1.5 bg-amber-400 text-amber-950 text-xs font-black uppercase rounded-full mb-4">
-                                        {selectedImage.category.name}
+                                        {selectedImage?.category?.name ?? 'Uncategorized'}
                                     </span>
                                     <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
                                         {selectedImage.title}

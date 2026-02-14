@@ -11,6 +11,20 @@ use App\Http\Controllers\ResearchTipController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\NewsCommentController;
+use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\OpportunityController;
+use App\Http\Controllers\OpportunityApplicationController;
+use App\Http\Controllers\Admin\AdminHealthTipController;
+use App\Http\Controllers\Admin\AdminHealthTipCategoryController;
+use App\Http\Controllers\Admin\AdminResearchTipController;
+use App\Http\Controllers\Admin\AdminResearchTipCategoryController;
+use App\Http\Controllers\Admin\AdminNewsController;
+use App\Http\Controllers\Admin\AdminNewsCategoryController;
+use App\Http\Controllers\Admin\AdminGalleryCategoryController;
+use App\Http\Controllers\Admin\AdminGalleryImageController;
+use App\Http\Controllers\Admin\AdminOpportunityController;
+use App\Http\Controllers\Admin\AdminUserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -64,6 +78,9 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
     Route::post('/messages/start', [MessageController::class, 'start'])->name('messages.start');
     Route::post('/messages/{conversation}', [MessageController::class, 'store'])->name('messages.store');
     Route::get('/messages/{conversation}/poll', [MessageController::class, 'poll'])->name('messages.poll');
+    Route::get('/messages/search', [MessageController::class, 'search'])->name('messages.search');
+    Route::delete('/messages/{conversation}', [MessageController::class, 'destroy'])->name('messages.destroy');
+    Route::get('/messages/{conversation}/export', [MessageController::class, 'export'])->name('messages.export');
 
     Route::get('/blogs', function () {
         return Inertia::render('Blogs');
@@ -90,11 +107,85 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
         return Inertia::render('MyStudents/Index');
     })->name('my-students');
 
-    Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
+    Route::get('/gallery', [\App\Http\Controllers\GalleryController::class, 'index'])->name('gallery');
 
-    Route::get('/opportunities', function () {
-        return Inertia::render('Opportunities/Index');
-    })->name('opportunities');
+    Route::get('/opportunities', [OpportunityController::class, 'index'])->name('opportunities');
+    Route::get('/opportunities/{id}', [OpportunityController::class, 'show'])->name('opportunities.show');
+    Route::get('/opportunities/{id}/apply', [OpportunityApplicationController::class, 'create'])->name('opportunities.apply');
+    Route::post('/opportunities/{id}/apply', [OpportunityApplicationController::class, 'store'])->name('opportunities.apply.store');
+    Route::get('/opportunities/{id}/thank-you', [OpportunityApplicationController::class, 'thankYou'])->name('opportunities.thank-you');
+
+    Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+        Route::get('/', function () {
+            return Inertia::render('Admin/Dashboard');
+        })->name('dashboard');
+
+        Route::prefix('health-tips')->name('health-tips.')->group(function () {
+            Route::get('/', [AdminHealthTipController::class, 'index'])->name('index');
+            Route::get('/create', [AdminHealthTipController::class, 'create'])->name('create');
+            Route::post('/', [AdminHealthTipController::class, 'store'])->name('store');
+            Route::delete('/{healthTip}', [AdminHealthTipController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('health-tip-categories')->name('health-tip-categories.')->group(function () {
+            Route::get('/', [AdminHealthTipCategoryController::class, 'index'])->name('index');
+            Route::post('/', [AdminHealthTipCategoryController::class, 'store'])->name('store');
+            Route::delete('/{healthTipCategory}', [AdminHealthTipCategoryController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('research-tips')->name('research-tips.')->group(function () {
+            Route::get('/', [AdminResearchTipController::class, 'index'])->name('index');
+            Route::get('/create', [AdminResearchTipController::class, 'create'])->name('create');
+            Route::post('/', [AdminResearchTipController::class, 'store'])->name('store');
+            Route::delete('/{researchTip}', [AdminResearchTipController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('research-tip-categories')->name('research-tip-categories.')->group(function () {
+            Route::get('/', [AdminResearchTipCategoryController::class, 'index'])->name('index');
+            Route::post('/', [AdminResearchTipCategoryController::class, 'store'])->name('store');
+            Route::delete('/{researchTipCategory}', [AdminResearchTipCategoryController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('hot-news')->name('hot-news.')->group(function () {
+            Route::get('/', [AdminNewsController::class, 'index'])->name('index');
+            Route::get('/create', [AdminNewsController::class, 'create'])->name('create');
+            Route::post('/', [AdminNewsController::class, 'store'])->name('store');
+            Route::delete('/{news}', [AdminNewsController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('hot-news-categories')->name('hot-news-categories.')->group(function () {
+            Route::get('/', [AdminNewsCategoryController::class, 'index'])->name('index');
+            Route::post('/', [AdminNewsCategoryController::class, 'store'])->name('store');
+            Route::delete('/{newsCategory}', [AdminNewsCategoryController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('gallery-categories')->name('gallery-categories.')->group(function () {
+            Route::get('/', [AdminGalleryCategoryController::class, 'index'])->name('index');
+            Route::post('/', [AdminGalleryCategoryController::class, 'store'])->name('store');
+            Route::delete('/{galleryCategory}', [AdminGalleryCategoryController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('gallery-images')->name('gallery-images.')->group(function () {
+            Route::get('/', [AdminGalleryImageController::class, 'index'])->name('index');
+            Route::post('/', [AdminGalleryImageController::class, 'store'])->name('store');
+            Route::delete('/{galleryImage}', [AdminGalleryImageController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('opportunities')->name('opportunities.')->group(function () {
+            Route::get('/', [AdminOpportunityController::class, 'index'])->name('index');
+            Route::get('/create', [AdminOpportunityController::class, 'create'])->name('create');
+            Route::post('/', [AdminOpportunityController::class, 'store'])->name('store');
+            Route::get('/{opportunity}/edit', [AdminOpportunityController::class, 'edit'])->name('edit');
+            Route::put('/{opportunity}', [AdminOpportunityController::class, 'update'])->name('update');
+            Route::delete('/{opportunity}', [AdminOpportunityController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [AdminUserController::class, 'index'])->name('index');
+            Route::get('/{user}/edit', [AdminUserController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
+        });
+    });
 });
 
 require __DIR__.'/auth.php';

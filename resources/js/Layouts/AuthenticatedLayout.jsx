@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { User, Star, Settings, LogOut, Search, Bell, MessageSquare, LayoutDashboard, HeartPulse, Microscope, Library, Newspaper, Users, Image, Briefcase, FileText } from 'lucide-react';
+import { User, Star, LogOut, Search, Bell, MessageSquare, LayoutDashboard, HeartPulse, Microscope, Library, Newspaper, Image, Briefcase, FileText, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const NavItem = ({ href, active, children, icon: Icon, badge }) => {
@@ -93,6 +93,9 @@ const IconMessage = (props) => (
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const counts = usePage().props.counts || {};
+    const unreadMessages = Number(counts.messages_unread || 0);
+    const isAdmin = !!user?.is_admin;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -152,97 +155,162 @@ export default function AuthenticatedLayout({ header, children }) {
                                 href={route('messages')}
                                 active={route().current('messages')}
                                 icon={MessageSquare}
-                                badge={6}
+                                badge={unreadMessages > 0 ? unreadMessages : undefined}
                             >
                                 Messages
                             </NavItem>
                         </li>
 
-                        <li>
-                            <NavItem
-                                href={route('profile.edit')}
-                                active={route().current('profile.edit')}
-                                icon={Settings}
-                            >
-                                Settings
-                            </NavItem>
-                        </li>
                     </ul>
 
-                    <ul className="mt-5 space-y-2 border-t border-gray-200 pt-5 dark:border-gray-700">
-                        <li>
-                            <NavItem
-                                href={route('health-tips')}
-                                active={route().current('health-tips')}
-                                icon={HeartPulse}
-                            >
-                                Health Tips
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('research-tips')}
-                                active={route().current('research-tips')}
-                                icon={Microscope}
-                            >
-                                Research Tips
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('pt-library')}
-                                active={route().current('pt-library')}
-                                icon={Library}
-                            >
-                                PT. Library
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('hot-news')}
-                                active={route().current('hot-news')}
-                                icon={Newspaper}
-                            >
-                                Hot News
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('my-students')}
-                                active={route().current('my-students')}
-                                icon={Users}
-                            >
-                                My Students
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('gallery')}
-                                active={route().current('gallery')}
-                                icon={Image}
-                            >
-                                Gallery
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('opportunities')}
-                                active={route().current('opportunities')}
-                                icon={Briefcase}
-                            >
-                                Opportunities
-                            </NavItem>
-                        </li>
-                        <li>
-                            <NavItem
-                                href={route('docs.icons')}
-                                active={route().current('docs.icons')}
-                                icon={FileText}
-                            >
-                                Docs
-                            </NavItem>
-                        </li>
-                    </ul>
+                    {isAdmin ? (
+                        <ul className="mt-5 space-y-2 border-t border-gray-200 pt-5 dark:border-gray-700">
+                            <li>
+                                <NavItem
+                                    href={route('admin.dashboard')}
+                                    active={route().current('admin.dashboard')}
+                                    icon={LayoutDashboard}
+                                >
+                                    Admin Dashboard
+                                </NavItem>
+                            </li>
+
+                            <li className="pt-2">
+                                <div className="px-2 text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                                    Content Management
+                                </div>
+                            </li>
+
+                            <li>
+                                <NavItem
+                                    href={route('admin.health-tips.index')}
+                                    active={route().current('admin.health-tips.index') || route().current('admin.health-tips.create') || route().current('admin.health-tip-categories.index')}
+                                    icon={HeartPulse}
+                                >
+                                    Health Tips
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('admin.research-tips.index')}
+                                    active={route().current('admin.research-tips.index') || route().current('admin.research-tips.create') || route().current('admin.research-tip-categories.index')}
+                                    icon={Microscope}
+                                >
+                                    Research Tips
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('admin.hot-news.index')}
+                                    active={route().current('admin.hot-news.index') || route().current('admin.hot-news.create') || route().current('admin.hot-news-categories.index')}
+                                    icon={Newspaper}
+                                >
+                                    Hot News
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('admin.gallery-images.index')}
+                                    active={route().current('admin.gallery-images.index') || route().current('admin.gallery-categories.index')}
+                                    icon={Image}
+                                >
+                                    Gallery
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('admin.opportunities.index')}
+                                    active={route().current('admin.opportunities.index') || route().current('admin.opportunities.create') || route().current('admin.opportunities.edit')}
+                                    icon={Briefcase}
+                                >
+                                    Opportunities
+                                </NavItem>
+                            </li>
+
+                            <li className="pt-2">
+                                <div className="px-2 text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                                    Users
+                                </div>
+                            </li>
+
+                            <li>
+                                <NavItem
+                                    href={route('admin.users.index')}
+                                    active={route().current('admin.users.index') || route().current('admin.users.edit')}
+                                    icon={Users}
+                                >
+                                    Users Management
+                                </NavItem>
+                            </li>
+
+                            <li>
+                                <NavItem
+                                    href={route('docs.icons')}
+                                    active={route().current('docs.icons')}
+                                    icon={FileText}
+                                >
+                                    Docs
+                                </NavItem>
+                            </li>
+                        </ul>
+                    ) : (
+                        <ul className="mt-5 space-y-2 border-t border-gray-200 pt-5 dark:border-gray-700">
+                            <li>
+                                <NavItem
+                                    href={route('health-tips')}
+                                    active={route().current('health-tips')}
+                                    icon={HeartPulse}
+                                >
+                                    Health Tips
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('research-tips')}
+                                    active={route().current('research-tips')}
+                                    icon={Microscope}
+                                >
+                                    Research Tips
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('pt-library')}
+                                    active={route().current('pt-library')}
+                                    icon={Library}
+                                >
+                                    PT. Library
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('hot-news')}
+                                    active={route().current('hot-news')}
+                                    icon={Newspaper}
+                                >
+                                    Hot News
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('gallery')}
+                                    active={route().current('gallery')}
+                                    icon={Image}
+                                >
+                                    Gallery
+                                </NavItem>
+                            </li>
+                            <li>
+                                <NavItem
+                                    href={route('opportunities')}
+                                    active={route().current('opportunities')}
+                                    icon={Briefcase}
+                                >
+                                    Opportunities
+                                </NavItem>
+                            </li>
+                        </ul>
+                    )}
 
                     <div className="mt-auto border-t border-gray-200 pt-4 dark:border-gray-700">
                         <div className="px-2 text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -314,9 +382,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                 className="relative rounded-xl p-2 text-white hover:bg-white/10 transition-colors"
                             >
                                 <MessageSquare className="h-5 w-5 drop-shadow-sm" />
-                                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-[11px] font-black leading-none text-emerald-950 ring-2 ring-emerald-900 shadow-md">
-                                    6
-                                </span>
+                                {unreadMessages > 0 ? (
+                                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-[11px] font-black leading-none text-emerald-950 ring-2 ring-emerald-900 shadow-md">
+                                        {unreadMessages}
+                                    </span>
+                                ) : null}
                             </Link>
 
                             <div className="relative">
@@ -400,16 +470,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                                     <span className="font-bold">Reviews</span>
                                                 </Link>
 
-                                                <Link
-                                                    href={route('profile.edit')}
-                                                    className="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-emerald-100 hover:bg-white/10 transition-colors"
-                                                    onClick={() => setUserMenuOpen(false)}
-                                                >
-                                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-800 text-emerald-300 group-hover:bg-emerald-700">
-                                                        <Settings className="h-4 w-4" />
-                                                    </div>
-                                                    <span className="font-bold">Settings</span>
-                                                </Link>
                                             </div>
 
                                             <div className="border-t border-white/5 p-1.5 mt-1">

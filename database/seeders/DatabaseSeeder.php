@@ -6,6 +6,8 @@ use App\Models\ForumTopic;
 use App\Models\ForumPost;
 use App\Models\Review;
 use App\Models\User;
+use Database\Seeders\OpportunitySeeder;
+use Database\Seeders\AdminRoleSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -38,5 +40,8 @@ class DatabaseSeeder extends Seeder
                 'forum_topic_id' => $topic->id
             ]);
         }
+
+        $this->call(OpportunitySeeder::class);
+        $this->call(AdminRoleSeeder::class);
     }
 }
