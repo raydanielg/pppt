@@ -13,7 +13,7 @@ export default function UpdateProfileInformation({
 }) {
     const user = usePage().props.auth.user;
 
-    const { data, setData, post, errors, processing, recentlySuccessful } =
+    const { data, setData, post, errors, setError, clearErrors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
             email: user.email,
@@ -63,7 +63,25 @@ export default function UpdateProfileInformation({
                                 type="file"
                                 accept="image/*"
                                 className="hidden"
-                                onChange={(e) => setData('avatar', e.target.files[0])}
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
+                                    if (!file) {
+                                        setData('avatar', null);
+                                        clearErrors('avatar');
+                                        return;
+                                    }
+
+                                    const maxBytes = 2 * 1024 * 1024;
+                                    if (file.size > maxBytes) {
+                                        e.target.value = '';
+                                        setData('avatar', null);
+                                        setError('avatar', 'Image too large. Please choose a file up to 2MB.');
+                                        return;
+                                    }
+
+                                    clearErrors('avatar');
+                                    setData('avatar', file);
+                                }}
                             />
                         </label>
                     </div>
