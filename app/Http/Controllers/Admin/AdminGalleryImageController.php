@@ -31,13 +31,12 @@ class AdminGalleryImageController extends Controller
         ]);
 
         $path = $request->file('image')->store('gallery', 'public');
-        $url = Storage::disk('public')->url($path);
 
         GalleryImage::create([
             'gallery_category_id' => $data['gallery_category_id'],
             'title' => $data['title'] ?? null,
             'description' => $data['description'] ?? null,
-            'image_url' => $url,
+            'image_url' => $path,
         ]);
 
         return redirect()->route('admin.gallery-images.index')->with('success', 'Image uploaded.');
@@ -45,6 +44,11 @@ class AdminGalleryImageController extends Controller
 
     public function destroy(GalleryImage $galleryImage): RedirectResponse
     {
+        $raw = (string) ($galleryImage->getRawOriginal('image_url') ?? '');
+        if ($raw !== '' && ! str_starts_with($raw, 'http://') && ! str_starts_with($raw, 'https://')) {
+            Storage::disk('public')->delete($raw);
+        }
+
         $galleryImage->delete();
 
         return redirect()->route('admin.gallery-images.index')->with('success', 'Image deleted.');
