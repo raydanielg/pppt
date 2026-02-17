@@ -1,8 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Book as BookIcon, Download, Search, FileText, User, Tag, ExternalLink } from 'lucide-react';
 
-export default function Index({ books }) {
+export default function Index({ books, categories = [], filters = {} }) {
     return (
         <AuthenticatedLayout>
             <Head title="PT Library" />
@@ -34,18 +34,59 @@ export default function Index({ books }) {
                                 <input 
                                     type="text" 
                                     placeholder="Title or author..." 
+                                    value={filters.search ?? ''}
+                                    onChange={(e) =>
+                                        router.visit(route('pt-library'), {
+                                            data: { search: e.target.value, category: filters.category ?? '' },
+                                            preserveState: true,
+                                            preserveScroll: true,
+                                            replace: true,
+                                        })
+                                    }
                                     className="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-emerald-500 transition-all outline-none text-sm"
                                 />
                             </div>
 
                             <h3 className="text-sm font-black mb-4 uppercase tracking-widest text-gray-400">Popular Categories</h3>
                             <div className="flex flex-col gap-2">
-                                {['Rehabilitation', 'Orthopedics', 'Neurology', 'Pediatrics', 'Sports Medicine'].map((cat) => (
-                                    <button key={cat} className="text-left px-4 py-3 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-gray-600 dark:text-gray-400 font-bold text-sm transition-all flex items-center justify-between group">
-                                        {cat}
+                                {categories.map((cat) => (
+                                    <button
+                                        key={cat.id}
+                                        type="button"
+                                        onClick={() =>
+                                            router.visit(route('pt-library'), {
+                                                data: { search: filters.search ?? '', category: cat.slug },
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                                replace: true,
+                                            })
+                                        }
+                                        className={
+                                            'text-left px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 font-bold text-sm transition-all flex items-center justify-between group ' +
+                                            ((filters.category ?? '') === cat.slug
+                                                ? 'bg-emerald-50 dark:bg-emerald-900/30'
+                                                : 'hover:bg-emerald-50 dark:hover:bg-emerald-900/30')
+                                        }
+                                    >
+                                        {cat.name}
                                         <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all" />
                                     </button>
                                 ))}
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        router.visit(route('pt-library'), {
+                                            data: { search: filters.search ?? '', category: '' },
+                                            preserveState: true,
+                                            preserveScroll: true,
+                                            replace: true,
+                                        })
+                                    }
+                                    className="text-left px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-600 font-bold text-sm transition-all"
+                                >
+                                    All Categories
+                                </button>
                             </div>
                         </div>
 
@@ -58,6 +99,13 @@ export default function Index({ books }) {
                                 <FileText className="w-5 h-5" />
                                 Upload Resource
                             </button>
+
+                            <Link
+                                href={route('pt-library.notes')}
+                                className="mt-4 block w-full text-center py-4 bg-white/10 border border-white/20 text-white font-black rounded-2xl hover:bg-white/15 transition-all"
+                            >
+                                View Notes
+                            </Link>
                         </div>
                     </div>
 
@@ -68,10 +116,10 @@ export default function Index({ books }) {
                                 <div key={book.id} className="group bg-white dark:bg-gray-800 rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col">
                                     {/* Book Cover */}
                                     <div className="relative h-64 overflow-hidden bg-gray-100 dark:bg-gray-900">
-                                        <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                        <img src={book.cover_image_url ?? book.cover_image} alt={book.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <a 
-                                                href={book.pdf_url} 
+                                                href={book.pdf_download_url ?? book.pdf_url} 
                                                 download 
                                                 className="p-4 bg-white text-emerald-600 rounded-2xl shadow-xl hover:scale-110 transition-transform"
                                             >
@@ -79,7 +127,7 @@ export default function Index({ books }) {
                                             </a>
                                         </div>
                                         <div className="absolute top-4 left-4 bg-amber-400 text-amber-950 text-[10px] font-black uppercase px-3 py-1 rounded-full">
-                                            {book.category}
+                                            {book.library_category?.name ?? book.category}
                                         </div>
                                         <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-[10px] font-black px-3 py-1 rounded-full">
                                             {book.file_size}
@@ -103,7 +151,7 @@ export default function Index({ books }) {
 
                                         <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-700">
                                             <a 
-                                                href={book.pdf_url} 
+                                                href={book.pdf_download_url ?? book.pdf_url} 
                                                 download 
                                                 className="flex items-center gap-2 text-emerald-600 font-black text-sm hover:translate-x-1 transition-transform"
                                             >

@@ -96,6 +96,16 @@ export default function AdminLayout({ title, children }) {
                     { label: 'Create Opportunity', href: route('admin.opportunities.create'), active: route().current('admin.opportunities.create') },
                 ],
             },
+            {
+                type: 'group',
+                label: 'Library',
+                icon: Library,
+                items: [
+                    { label: 'Categories', href: route('admin.library.categories.index'), active: route().current('admin.library.categories.index') },
+                    { label: 'Books', href: route('admin.library.books.index'), active: route().current('admin.library.books.index') },
+                    { label: 'Notes', href: route('admin.library.notes.index'), active: route().current('admin.library.notes.index') },
+                ],
+            },
             { type: 'item', label: 'Users Management', href: route('admin.users.index'), icon: Users, active: route().current('admin.users.index') || route().current('admin.users.edit') },
             { type: 'item', label: 'PT Library', href: route('pt-library'), icon: Library, active: route().current('pt-library') },
             { type: 'item', label: 'Docs', href: route('docs.icons'), icon: FileText, active: route().current('docs.icons') },

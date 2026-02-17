@@ -6,23 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\LibraryCategory;
 
-class Book extends Model
+class Note extends Model
 {
     protected $appends = [
-        'cover_image_url',
-        'pdf_download_url',
+        'file_download_url',
     ];
 
     protected $fillable = [
         'title',
         'author',
         'description',
-        'cover_image',
-        'pdf_url',
+        'file_url',
         'library_category_id',
         'category',
         'file_size',
-        'uploaded_by'
+        'uploaded_by',
     ];
 
     public function uploader()
@@ -35,23 +33,9 @@ class Book extends Model
         return $this->belongsTo(LibraryCategory::class, 'library_category_id');
     }
 
-    public function getCoverImageUrlAttribute(): ?string
+    public function getFileDownloadUrlAttribute(): ?string
     {
-        $raw = (string) ($this->getRawOriginal('cover_image') ?? '');
-        if ($raw === '') {
-            return null;
-        }
-
-        if (str_starts_with($raw, 'http://') || str_starts_with($raw, 'https://')) {
-            return $raw;
-        }
-
-        return '/storage/'.ltrim($raw, '/');
-    }
-
-    public function getPdfDownloadUrlAttribute(): ?string
-    {
-        $raw = (string) ($this->getRawOriginal('pdf_url') ?? '');
+        $raw = (string) ($this->getRawOriginal('file_url') ?? '');
         if ($raw === '') {
             return null;
         }

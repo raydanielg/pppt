@@ -9,6 +9,7 @@ use App\Http\Controllers\OnboardingCountriesController;
 use App\Http\Controllers\HealthTipController;
 use App\Http\Controllers\ResearchTipController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\NoteController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NewsCommentController;
@@ -25,6 +26,9 @@ use App\Http\Controllers\Admin\AdminGalleryCategoryController;
 use App\Http\Controllers\Admin\AdminGalleryImageController;
 use App\Http\Controllers\Admin\AdminOpportunityController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminBookController;
+use App\Http\Controllers\Admin\AdminNoteController;
+use App\Http\Controllers\Admin\AdminLibraryCategoryController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -97,6 +101,7 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
     Route::get('/research-tips/{slug}', [ResearchTipController::class, 'show'])->name('research-tips.show');
 
     Route::get('/pt-library', [BookController::class, 'index'])->name('pt-library');
+    Route::get('/pt-library/notes', [NoteController::class, 'index'])->name('pt-library.notes');
 
     Route::get('/hot-news', [NewsController::class, 'index'])->name('hot-news');
     Route::get('/hot-news/{slug}', [NewsController::class, 'show'])->name('hot-news.show');
@@ -184,6 +189,26 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
             Route::get('/{user}/edit', [AdminUserController::class, 'edit'])->name('edit');
             Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
+        });
+
+        Route::prefix('library')->name('library.')->group(function () {
+            Route::prefix('categories')->name('categories.')->group(function () {
+                Route::get('/', [AdminLibraryCategoryController::class, 'index'])->name('index');
+                Route::post('/', [AdminLibraryCategoryController::class, 'store'])->name('store');
+                Route::delete('/{libraryCategory}', [AdminLibraryCategoryController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::prefix('books')->name('books.')->group(function () {
+                Route::get('/', [AdminBookController::class, 'index'])->name('index');
+                Route::post('/', [AdminBookController::class, 'store'])->name('store');
+                Route::delete('/{book}', [AdminBookController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::prefix('notes')->name('notes.')->group(function () {
+                Route::get('/', [AdminNoteController::class, 'index'])->name('index');
+                Route::post('/', [AdminNoteController::class, 'store'])->name('store');
+                Route::delete('/{note}', [AdminNoteController::class, 'destroy'])->name('destroy');
+            });
         });
     });
 });

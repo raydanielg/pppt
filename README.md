@@ -57,3 +57,23 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+# Icons
+URL: /docs/icons
+
+***
+
+title: Icons
+description: Lucide Icons animated with Motion.
+-----------------------------------------------
+
+import { Icons } from '@/components/docs/icons';
+import { IconsFallback } from '@/components/docs/icons-fallback';
+import { Suspense } from 'react';
+
+## List of icons
+
+<Suspense fallback={<IconsFallback />}>
+  <Icons />
+</Suspense>

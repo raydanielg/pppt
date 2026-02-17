@@ -2,33 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
+use App\Models\Note;
 use App\Models\LibraryCategory;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 
-class BookController extends Controller
+class NoteController extends Controller
 {
     public function index(Request $request)
     {
         $search = trim((string) $request->query('search', ''));
         $category = trim((string) $request->query('category', ''));
 
-        $booksQuery = Book::query()->with(['uploader', 'libraryCategory']);
+        $notesQuery = Note::query()->with(['uploader', 'libraryCategory']);
 
         if ($category !== '') {
-            $booksQuery->whereHas('libraryCategory', fn ($q) => $q->where('slug', $category));
+            $notesQuery->whereHas('libraryCategory', fn ($q) => $q->where('slug', $category));
         }
 
         if ($search !== '') {
-            $booksQuery->where(function ($q) use ($search) {
+            $notesQuery->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%'.$search.'%')
                     ->orWhere('author', 'like', '%'.$search.'%');
             });
         }
 
-        return Inertia::render('PTLibrary/Index', [
-            'books' => $booksQuery->latest()->get(),
+        return Inertia::render('PTLibrary/Notes', [
+            'notes' => $notesQuery->latest()->get(),
             'categories' => LibraryCategory::query()->orderBy('name')->get(['id', 'name', 'slug']),
             'filters' => [
                 'search' => $search,
