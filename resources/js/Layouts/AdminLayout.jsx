@@ -94,6 +94,7 @@ export default function AdminLayout({ title, children }) {
                 items: [
                     { label: 'All Opportunities', href: route('admin.opportunities.index'), active: route().current('admin.opportunities.index') },
                     { label: 'Create Opportunity', href: route('admin.opportunities.create'), active: route().current('admin.opportunities.create') },
+                    { label: 'Applications', href: route('admin.opportunity-applications.index'), active: route().current('admin.opportunity-applications.index') },
                 ],
             },
             {

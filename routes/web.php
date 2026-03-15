@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\AdminNewsCategoryController;
 use App\Http\Controllers\Admin\AdminGalleryCategoryController;
 use App\Http\Controllers\Admin\AdminGalleryImageController;
 use App\Http\Controllers\Admin\AdminOpportunityController;
+use App\Http\Controllers\Admin\AdminOpportunityApplicationController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminBookController;
 use App\Http\Controllers\Admin\AdminNoteController;
@@ -183,6 +184,14 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
             Route::get('/{opportunity}/edit', [AdminOpportunityController::class, 'edit'])->name('edit');
             Route::put('/{opportunity}', [AdminOpportunityController::class, 'update'])->name('update');
             Route::delete('/{opportunity}', [AdminOpportunityController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('opportunity-applications')->name('opportunity-applications.')->group(function () {
+            Route::get('/', [AdminOpportunityApplicationController::class, 'index'])->name('index');
+            Route::get('/{opportunityApplication}', [AdminOpportunityApplicationController::class, 'show'])->name('show');
+            Route::get('/{opportunityApplication}/download', [AdminOpportunityApplicationController::class, 'download'])->name('download');
+            Route::put('/{opportunityApplication}/review', [AdminOpportunityApplicationController::class, 'markReviewed'])->name('review');
+            Route::delete('/{opportunityApplication}', [AdminOpportunityApplicationController::class, 'destroy'])->name('destroy');
         });
 
         Route::prefix('users')->name('users.')->group(function () {

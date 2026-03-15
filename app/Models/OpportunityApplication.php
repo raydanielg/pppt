@@ -24,4 +24,9 @@ class OpportunityApplication extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function opportunity(): BelongsTo
+    {
+        return $this->belongsTo(Opportunity::class);
+    }
 }
