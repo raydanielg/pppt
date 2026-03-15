@@ -189,6 +189,7 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
         Route::prefix('opportunity-applications')->name('opportunity-applications.')->group(function () {
             Route::get('/', [AdminOpportunityApplicationController::class, 'index'])->name('index');
             Route::get('/{opportunityApplication}', [AdminOpportunityApplicationController::class, 'show'])->name('show');
+            Route::get('/{opportunityApplication}/view', [AdminOpportunityApplicationController::class, 'viewDocument'])->name('view');
             Route::get('/{opportunityApplication}/download', [AdminOpportunityApplicationController::class, 'download'])->name('download');
             Route::put('/{opportunityApplication}/review', [AdminOpportunityApplicationController::class, 'markReviewed'])->name('review');
             Route::delete('/{opportunityApplication}', [AdminOpportunityApplicationController::class, 'destroy'])->name('destroy');

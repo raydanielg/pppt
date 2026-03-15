@@ -83,6 +83,23 @@ class AdminOpportunityApplicationController extends Controller
         return Storage::disk('local')->download($path, $name);
     }
 
+    public function viewDocument(OpportunityApplication $opportunityApplication)
+    {
+        $path = (string) $opportunityApplication->cover_letter_path;
+
+        if ($path === '' || ! Storage::disk('local')->exists($path)) {
+            abort(404);
+        }
+
+        $name = (string) ($opportunityApplication->cover_letter_original_name ?: 'cover-letter');
+        $mime = (string) ($opportunityApplication->cover_letter_mime ?: 'application/octet-stream');
+
+        return Storage::disk('local')->response($path, $name, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="'.$name.'"',
+        ]);
+    }
+
     public function destroy(OpportunityApplication $opportunityApplication): RedirectResponse
     {
         $path = (string) $opportunityApplication->cover_letter_path;

@@ -1,6 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, ExternalLink } from 'lucide-react';
 
 function formatBytes(bytes) {
     const n = Number(bytes || 0);
@@ -17,6 +17,8 @@ function formatBytes(bytes) {
 
 export default function ApplicationShow({ application, hasReviewed }) {
     const flash = usePage().props.flash;
+
+    const isPdf = String(application?.cover_letter_mime || '').toLowerCase().includes('pdf');
 
     const form = useForm({
         is_reviewed: Boolean(application?.is_reviewed ?? false),
@@ -48,13 +50,24 @@ export default function ApplicationShow({ application, hasReviewed }) {
                     Back
                 </Link>
 
-                <a
-                    href={route('admin.opportunity-applications.download', application.id)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-black text-white hover:bg-emerald-700"
-                >
-                    <Download className="h-4 w-4" />
-                    Download Cover Letter
-                </a>
+                <div className="flex items-center gap-2">
+                    <a
+                        href={route('admin.opportunity-applications.view', application.id)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-black text-gray-700 hover:bg-gray-50"
+                    >
+                        <ExternalLink className="h-4 w-4" />
+                        Open
+                    </a>
+                    <a
+                        href={route('admin.opportunity-applications.download', application.id)}
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-black text-white hover:bg-emerald-700"
+                    >
+                        <Download className="h-4 w-4" />
+                        Download
+                    </a>
+                </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -69,6 +82,10 @@ export default function ApplicationShow({ application, hasReviewed }) {
                     <div className="mt-3 grid gap-2">
                         <div className="text-sm font-black text-gray-900">{application.opportunity?.advert_name ?? application.advert_name}</div>
                         <div className="text-xs text-gray-500">{application.opportunity?.employer_name || '—'}</div>
+                        <div className="text-xs text-gray-500">
+                            Posts: {application.opportunity?.posts ?? '—'} • Open: {application.opportunity?.open_date ?? '—'} • Close: {application.opportunity?.close_date ?? '—'}
+                        </div>
+                        <div className="text-xs text-gray-500">Remuneration: {application.opportunity?.remuneration || '—'}</div>
                     </div>
 
                     <div className="mt-6 text-sm font-black text-gray-900">Cover Letter File</div>
@@ -78,8 +95,28 @@ export default function ApplicationShow({ application, hasReviewed }) {
                             <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                 {application.cover_letter_mime} • {formatBytes(application.cover_letter_size)}
                             </div>
-                            <div className="mt-2 text-xs text-gray-500">Submitted: {new Date(application.created_at).toLocaleString()}</div>
+                            <div className="mt-2 text-xs text-gray-500">Application ID: {application.id}</div>
+                            <div className="mt-1 text-xs text-gray-500">Submitted: {new Date(application.created_at).toLocaleString()}</div>
+                            <div className="mt-1 text-xs text-gray-500">Last update: {new Date(application.updated_at).toLocaleString()}</div>
                         </div>
+                    </div>
+
+                    <div className="mt-6 text-sm font-black text-gray-900">Document Preview</div>
+                    <div className="mt-3 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
+                        {isPdf ? (
+                            <iframe
+                                title="Cover letter preview"
+                                src={route('admin.opportunity-applications.view', application.id)}
+                                className="h-[70vh] w-full"
+                            />
+                        ) : (
+                            <div className="p-5">
+                                <div className="text-sm font-black text-gray-900">Preview not available</div>
+                                <div className="mt-1 text-xs text-gray-500">
+                                    This document type cannot be previewed in the browser. Use Open/Download.
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
