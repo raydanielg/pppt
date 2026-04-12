@@ -208,110 +208,185 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Recent Content */}
-                    <div className="rounded-2xl border border-gray-200 bg-white/80 p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
-                        <div className="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
-                            <div className="font-semibold text-gray-900 dark:text-gray-100">
-                                Recent Blogs & Documents
+                    {/* Recent Content - POWER DESIGN */}
+                    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-lg shadow-gray-100 dark:border-gray-700 dark:bg-gray-800/60">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-200">
+                                    <Library className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-900 dark:text-gray-100">Recent Content</div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">Blogs, documents & research</div>
+                                </div>
                             </div>
-                            <Link href={route('docs.icons')} className="text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">View all</Link>
+                            <Link 
+                                href={route('docs.icons')} 
+                                className="group flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                            >
+                                View all
+                                <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                            </Link>
                         </div>
-                        <div className="mt-4 grid gap-4 md:grid-cols-2">
-                            <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900/20 dark:hover:bg-gray-900/30">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-start gap-4 min-w-0">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:ring-emerald-900/50">
-                                            <FileText className="h-6 w-6" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="rounded-md bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Document</span>
-                                                <span className="text-[10px] text-gray-400 dark:text-gray-500">• 1 day ago</span>
-                                            </div>
-                                            <p className="mt-1 truncate text-sm font-black text-gray-900 dark:text-gray-100">Introduction to Physioplanet</p>
-                                            <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">Quick guide to get started.</p>
-                                        </div>
-                                    </div>
-                                    <div className="shrink-0">
-                                        <span className="inline-flex items-center rounded-xl bg-emerald-600 px-3 py-2 text-[11px] font-black text-white">
-                                            View
-                                            <ChevronRight className="ml-1 h-3.5 w-3.5" />
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900/20 dark:hover:bg-gray-900/30">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-start gap-4 min-w-0">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-yellow-50 text-yellow-700 ring-1 ring-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-300 dark:ring-yellow-900/50">
-                                            <BookOpen className="h-6 w-6" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="rounded-md bg-yellow-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">Blog Post</span>
-                                                <span className="text-[10px] text-gray-400 dark:text-gray-500">• 2 days ago</span>
-                                            </div>
-                                            <p className="mt-1 truncate text-sm font-black text-gray-900 dark:text-gray-100">Latest Physiotherapy Trends 2026</p>
-                                            <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">Highlights and new practices.</p>
-                                        </div>
+                        <div className="mt-5 grid gap-4 md:grid-cols-2">
+                            {/* Document Card */}
+                            <Link 
+                                href={route('docs.icons')}
+                                className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-500 hover:shadow-xl hover:shadow-emerald-100 hover:border-emerald-200 hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-900/20"
+                            >
+                                {/* Hover Gradient Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                
+                                <div className="relative flex items-start gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600 ring-1 ring-emerald-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 dark:from-emerald-900/30 dark:to-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-800">
+                                        <FileText className="h-7 w-7" />
                                     </div>
-                                    <div className="shrink-0">
-                                        <span className="inline-flex items-center rounded-xl bg-yellow-500 px-3 py-2 text-[11px] font-black text-white">
-                                            Read
-                                            <ChevronRight className="ml-1 h-3.5 w-3.5" />
-                                        </span>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Document</span>
+                                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                1 day ago
+                                            </span>
+                                        </div>
+                                        <h4 className="text-sm font-black text-gray-900 dark:text-gray-100 line-clamp-1 group-hover:text-emerald-700 transition-colors">
+                                            Introduction to Physioplanet
+                                        </h4>
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                            Quick guide to get started with the platform and explore features.
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
+                                
+                                {/* View Button */}
+                                <div className="relative mt-4 flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        Click to view
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-4 py-2 text-[11px] font-black text-white shadow-lg shadow-emerald-200 group-hover:bg-emerald-700 group-hover:shadow-emerald-300 transition-all duration-300">
+                                        View
+                                        <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                </div>
+                            </Link>
 
-                            <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900/20 dark:hover:bg-gray-900/30">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-start gap-4 min-w-0">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-300 dark:ring-indigo-900/50">
-                                            <Microscope className="h-6 w-6" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="rounded-md bg-indigo-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">Research</span>
-                                                <span className="text-[10px] text-gray-400 dark:text-gray-500">• 3 days ago</span>
-                                            </div>
-                                            <p className="mt-1 truncate text-sm font-black text-gray-900 dark:text-gray-100">How to write a strong proposal</p>
-                                            <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">Simple structure and tips.</p>
-                                        </div>
+                            {/* Blog Post Card */}
+                            <Link 
+                                href={route('blogs')}
+                                className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-500 hover:shadow-xl hover:shadow-amber-100 hover:border-amber-200 hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-900/20"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/0 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                
+                                <div className="relative flex items-start gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 text-amber-600 ring-1 ring-amber-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 dark:from-amber-900/30 dark:to-amber-900/50 dark:text-amber-300 dark:ring-amber-800">
+                                        <BookOpen className="h-7 w-7" />
                                     </div>
-                                    <div className="shrink-0">
-                                        <span className="inline-flex items-center rounded-xl bg-indigo-600 px-3 py-2 text-[11px] font-black text-white">
-                                            Open
-                                            <ChevronRight className="ml-1 h-3.5 w-3.5" />
-                                        </span>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">Blog Post</span>
+                                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                2 days ago
+                                            </span>
+                                        </div>
+                                        <h4 className="text-sm font-black text-gray-900 dark:text-gray-100 line-clamp-1 group-hover:text-amber-700 transition-colors">
+                                            Latest Physiotherapy Trends 2026
+                                        </h4>
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                            Highlights and new practices in physiotherapy industry this year.
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
+                                
+                                <div className="relative mt-4 flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        Click to read
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 rounded-xl bg-amber-500 px-4 py-2 text-[11px] font-black text-white shadow-lg shadow-amber-200 group-hover:bg-amber-600 group-hover:shadow-amber-300 transition-all duration-300">
+                                        Read
+                                        <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                </div>
+                            </Link>
 
-                            <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900/20 dark:hover:bg-gray-900/30">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-start gap-4 min-w-0">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700 ring-1 ring-rose-100 dark:bg-rose-900/20 dark:text-rose-300 dark:ring-rose-900/50">
-                                            <Newspaper className="h-6 w-6" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="rounded-md bg-rose-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">News</span>
-                                                <span className="text-[10px] text-gray-400 dark:text-gray-500">• 4 days ago</span>
-                                            </div>
-                                            <p className="mt-1 truncate text-sm font-black text-gray-900 dark:text-gray-100">Updates in Physioplanet</p>
-                                            <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">Announcements and changes.</p>
-                                        </div>
+                            {/* Research Card */}
+                            <Link 
+                                href={route('research-tips')}
+                                className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-500 hover:shadow-xl hover:shadow-indigo-100 hover:border-indigo-200 hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-900/20"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-indigo-500/0 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                
+                                <div className="relative flex items-start gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 ring-1 ring-indigo-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 dark:from-indigo-900/30 dark:to-indigo-900/50 dark:text-indigo-300 dark:ring-indigo-800">
+                                        <Microscope className="h-7 w-7" />
                                     </div>
-                                    <div className="shrink-0">
-                                        <span className="inline-flex items-center rounded-xl bg-rose-600 px-3 py-2 text-[11px] font-black text-white">
-                                            View
-                                            <ChevronRight className="ml-1 h-3.5 w-3.5" />
-                                        </span>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">Research</span>
+                                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                3 days ago
+                                            </span>
+                                        </div>
+                                        <h4 className="text-sm font-black text-gray-900 dark:text-gray-100 line-clamp-1 group-hover:text-indigo-700 transition-colors">
+                                            How to write a strong proposal
+                                        </h4>
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                            Simple structure and tips for writing successful research proposals.
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
+                                
+                                <div className="relative mt-4 flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        Click to open
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-4 py-2 text-[11px] font-black text-white shadow-lg shadow-indigo-200 group-hover:bg-indigo-700 group-hover:shadow-indigo-300 transition-all duration-300">
+                                        Open
+                                        <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                </div>
+                            </Link>
+
+                            {/* News Card */}
+                            <Link 
+                                href={route('hot-news')}
+                                className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 transition-all duration-500 hover:shadow-xl hover:shadow-rose-100 hover:border-rose-200 hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-900/20"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/0 via-rose-500/0 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                
+                                <div className="relative flex items-start gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-50 to-rose-100 text-rose-600 ring-1 ring-rose-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 dark:from-rose-900/30 dark:to-rose-900/50 dark:text-rose-300 dark:ring-rose-800">
+                                        <Newspaper className="h-7 w-7" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">News</span>
+                                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                4 days ago
+                                            </span>
+                                        </div>
+                                        <h4 className="text-sm font-black text-gray-900 dark:text-gray-100 line-clamp-1 group-hover:text-rose-700 transition-colors">
+                                            Updates in Physioplanet
+                                        </h4>
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                            Latest announcements, changes and important updates for members.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div className="relative mt-4 flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        Click to view
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 rounded-xl bg-rose-600 px-4 py-2 text-[11px] font-black text-white shadow-lg shadow-rose-200 group-hover:bg-rose-700 group-hover:shadow-rose-300 transition-all duration-300">
+                                        View
+                                        <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                </div>
+                            </Link>
                         </div>
                     </div>
                 </div>

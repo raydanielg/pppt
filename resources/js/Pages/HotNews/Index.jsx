@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Flame, Calendar, Clock, ChevronRight, Share2, Eye, TrendingUp, CheckCircle2 } from 'lucide-react';
 
@@ -16,7 +16,7 @@ export default function Index({ news, hot_news }) {
     };
 
     return (
-        <AuthenticatedLayout>
+        <PublicLayout>
             <Head title="Hot News" />
             
             <div className="py-8 px-4 sm:px-6 lg:px-10 max-w-[1600px] mx-auto">
@@ -258,6 +258,6 @@ export default function Index({ news, hot_news }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </PublicLayout>
     );
 }
