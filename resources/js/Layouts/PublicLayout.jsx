@@ -53,7 +53,7 @@ export default function PublicLayout({ children, title }) {
 
                         {/* Desktop Nav */}
                         <nav className="hidden lg:flex items-center gap-1">
-                            <NavLink href={route('welcome')} icon={Home} active={route().current('welcome')}>
+                            <NavLink href={route('home')} icon={Home} active={route().current('home')}>
                                 Home
                             </NavLink>
                             {mainNav.map((item) => (
@@ -109,7 +109,7 @@ export default function PublicLayout({ children, title }) {
                 {mobileMenuOpen && (
                     <div className="lg:hidden border-t border-gray-100 bg-white">
                         <div className="max-w-[1600px] mx-auto px-4 py-4 space-y-1">
-                            <NavLink href={route('welcome')} icon={Home} active={route().current('welcome')}>
+                            <NavLink href={route('home')} icon={Home} active={route().current('home')}>
                                 Home
                             </NavLink>
                             {mainNav.map((item) => (
