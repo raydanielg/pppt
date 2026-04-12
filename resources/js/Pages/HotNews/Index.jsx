@@ -2,7 +2,9 @@ import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Flame, Calendar, Clock, ChevronRight, Share2, Eye, TrendingUp, CheckCircle2 } from 'lucide-react';
 
-export default function Index({ news, hot_news }) {
+export default function Index({ news, hot_news: hotNewsProp }) {
+    // Ensure hot_news is always an array
+    const hot_news = hotNewsProp || [];
     const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
         email: '',
     });
@@ -33,7 +35,7 @@ export default function Index({ news, hot_news }) {
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-6">
-                        {hot_news.map((item, index) => (
+                        {hot_news && hot_news.length > 0 ? hot_news.map((item, index) => (
                             <Link 
                                 key={item.id} 
                                 href={route('hot-news.show', item.slug)}
@@ -95,7 +97,15 @@ export default function Index({ news, hot_news }) {
                                     <Share2 className="w-5 h-5 text-white" />
                                 </div>
                             </Link>
-                        ))}
+                        )) : (
+                            <div className="lg:col-span-2 flex flex-col items-center justify-center py-20 text-center">
+                                <div className="w-20 h-20 rounded-3xl bg-gray-100 flex items-center justify-center mb-6">
+                                    <Flame className="w-10 h-10 text-gray-400" />
+                                </div>
+                                <h3 className="text-xl font-black text-gray-900 mb-2">No Hot News Yet</h3>
+                                <p className="text-gray-500 max-w-md">Check back soon for breaking stories from the world of physiotherapy.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
