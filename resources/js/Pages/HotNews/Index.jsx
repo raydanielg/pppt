@@ -67,7 +67,7 @@ export default function Index({ news, hot_news: hotNewsProp }) {
                                         </span>
                                         <div className="flex items-center gap-2 text-white/80 text-xs font-bold uppercase tracking-wider bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full">
                                             <Calendar className="w-3.5 h-3.5" />
-                                            {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'No date'}
                                         </div>
                                     </div>
                                     
