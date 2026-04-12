@@ -25,12 +25,12 @@ const Comment = ({ comment, newsId, onReply }) => {
         <div className="group">
             <div className="flex gap-4 p-6 bg-white dark:bg-gray-800/50 rounded-[2rem] border border-gray-100 dark:border-gray-700/50 shadow-sm transition-all hover:shadow-md">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center font-black text-emerald-700 text-lg shadow-inner flex-shrink-0">
-                    {comment.user.name.charAt(0)}
+                    {comment?.user?.name?.charAt(0) || '?'}
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-black text-gray-900 dark:text-white text-sm">{comment.user.name}</h4>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(comment.created_at).toLocaleDateString()}</span>
+                        <h4 className="font-black text-gray-900 dark:text-white text-sm">{comment?.user?.name || 'Anonymous'}</h4>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{comment?.created_at ? new Date(comment.created_at).toLocaleDateString() : 'No date'}</span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">{comment.content}</p>
                     <button 
