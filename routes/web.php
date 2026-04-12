@@ -35,8 +35,12 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return redirect()->route('register');
-});
+    return Inertia::render('Welcome');
+})->name('home');
+
+Route::get('/pen', function () {
+    return Inertia::render('PEN');
+})->name('pen');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

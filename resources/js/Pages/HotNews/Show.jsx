@@ -121,24 +121,76 @@ export default function Show({ news, related_news, trending_news }) {
                     {/* Main Content Area */}
                     <div className="flex-1 max-w-4xl">
                         <article className="bg-white dark:bg-gray-800 rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-2xl shadow-gray-200/50 dark:shadow-none mb-12">
-                            {/* Article Header / Hero Image */}
-                            <div className="relative h-[500px]">
-                                <img src={news.image} alt={news.title} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                                <div className="absolute bottom-12 left-12 right-12 text-white">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <span className="px-4 py-1.5 bg-amber-400 text-amber-950 text-xs font-black uppercase tracking-[0.2em] rounded-full">
+                            {/* Article Header / Hero Image - POWER DESIGN */}
+                            <div className="relative h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden group">
+                                {/* Main Image */}
+                                <img 
+                                    src={news.image} 
+                                    alt={news.title} 
+                                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-[2000ms] ease-out" 
+                                />
+                                
+                                {/* Multi-layer Gradient Overlays */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"></div>
+                                <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent"></div>
+                                
+                                {/* Animated Corner Accent */}
+                                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-emerald-500/30 to-transparent"></div>
+                                
+                                {/* Content Overlay */}
+                                <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 lg:p-16">
+                                    {/* Breadcrumbs */}
+                                    <div className="flex items-center gap-2 text-white/60 text-sm font-medium mb-6">
+                                        <Link href={route('hot-news')} className="hover:text-white transition-colors">Hot News</Link>
+                                        <ChevronRight className="w-4 h-4" />
+                                        <span className="text-white/40">Article</span>
+                                    </div>
+                                    
+                                    {/* Badges */}
+                                    <div className="flex items-center gap-3 mb-5 flex-wrap">
+                                        <span className="px-5 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-black uppercase tracking-wider rounded-full shadow-lg">
                                             {news.category}
                                         </span>
                                         {news.is_hot && (
-                                            <span className="px-4 py-1.5 bg-orange-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-full animate-pulse">
-                                                Hot News
+                                            <span className="px-5 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white text-xs font-black uppercase tracking-wider rounded-full shadow-lg animate-pulse flex items-center gap-1.5">
+                                                <TrendingUp className="w-3.5 h-3.5" />
+                                                Trending
                                             </span>
                                         )}
+                                        <div className="flex items-center gap-2 text-white/80 text-xs font-bold uppercase tracking-wider bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            {Math.ceil(news.content?.length / 1000) || 5} min read
+                                        </div>
                                     </div>
-                                    <h1 className="text-4xl md:text-5xl font-black leading-[1.1] tracking-tight">
+                                    
+                                    {/* Title */}
+                                    <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-[1.1] tracking-tight text-white drop-shadow-2xl max-w-4xl">
                                         {news.title}
                                     </h1>
+                                    
+                                    {/* Author Preview */}
+                                    <div className="flex items-center gap-4 mt-8">
+                                        <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center font-black text-white text-lg shadow-lg border-2 border-white/20">
+                                            {news.author_name.charAt(0)}
+                                        </div>
+                                        <div className="text-white">
+                                            <p className="font-bold text-sm">{news.author_name}</p>
+                                            <p className="text-xs text-white/60 flex items-center gap-1.5">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(news.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Share Button Floating */}
+                                <div className="absolute top-8 right-8 flex gap-3">
+                                    <button className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/20">
+                                        <Share2 className="w-5 h-5" />
+                                    </button>
+                                    <button className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/20">
+                                        <Bookmark className="w-5 h-5" />
+                                    </button>
                                 </div>
                             </div>
 
@@ -283,23 +335,39 @@ export default function Show({ news, related_news, trending_news }) {
                                 </h2>
                             </div>
                             
-                            <div className="flex flex-col gap-10">
-                                {related_news.map((item) => (
+                            <div className="flex flex-col gap-8">
+                                {related_news.map((item, index) => (
                                     <Link 
                                         key={item.id}
                                         href={route('hot-news.show', item.slug)}
-                                        className="group flex gap-6"
+                                        className="group flex gap-5"
                                     >
-                                        <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-black/5">
-                                            <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        {/* Image with aspect ratio and hover effects */}
+                                        <div className="relative w-28 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-black/5 group-hover:shadow-xl transition-shadow duration-500">
+                                            <img 
+                                                src={item.image} 
+                                                alt={item.title} 
+                                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out" 
+                                                loading="lazy"
+                                            />
+                                            {/* Gradient overlay on hover */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            {/* Index number badge */}
+                                            <div className="absolute bottom-2 left-2 w-6 h-6 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center text-xs font-black text-gray-700 shadow-sm">
+                                                {index + 1}
+                                            </div>
                                         </div>
                                         <div className="flex flex-col justify-center min-w-0">
-                                            <span className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">
+                                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider mb-1.5">
                                                 {item.category}
                                             </span>
-                                            <h3 className="text-[15px] font-black text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors leading-tight line-clamp-3">
+                                            <h3 className="text-sm font-black text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors leading-snug line-clamp-2">
                                                 {item.title}
                                             </h3>
+                                            <div className="flex items-center gap-2 mt-2 text-gray-400 text-[10px]">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                            </div>
                                         </div>
                                     </Link>
                                 ))}

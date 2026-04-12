@@ -20,50 +20,79 @@ export default function Index({ news, hot_news }) {
             <Head title="Hot News" />
             
             <div className="py-8 px-4 sm:px-6 lg:px-10 max-w-[1600px] mx-auto">
-                {/* Hero / Hot News Section */}
-                <div className="mb-16">
-                    <div className="flex items-center gap-3 mb-8">
-                        <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-2xl">
-                            <Flame className="w-6 h-6 text-orange-600 animate-pulse" />
+                {/* Hero / Hot News Section - POWER DESIGN */}
+                <div className="mb-20">
+                    <div className="flex items-center gap-4 mb-10">
+                        <div className="p-4 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl shadow-lg shadow-orange-200">
+                            <Flame className="w-7 h-7 text-white animate-pulse" />
                         </div>
-                        <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900 dark:text-white">Hot News</h2>
+                        <div>
+                            <h2 className="text-3xl font-black uppercase tracking-tight text-gray-900 dark:text-white">Hot News</h2>
+                            <p className="text-sm text-gray-500 font-medium">Breaking stories from the world of physiotherapy</p>
+                        </div>
                     </div>
 
-                    <div className="grid lg:grid-cols-2 gap-8">
+                    <div className="grid lg:grid-cols-2 gap-6">
                         {hot_news.map((item, index) => (
                             <Link 
                                 key={item.id} 
                                 href={route('hot-news.show', item.slug)}
-                                className={`group relative rounded-[2.5rem] overflow-hidden shadow-2xl transition-all duration-500 hover:scale-[1.01] ${
-                                    index === 0 ? 'lg:row-span-2 h-full' : 'h-[300px]'
+                                className={`group relative rounded-3xl overflow-hidden transition-all duration-700 hover:shadow-3xl ${
+                                    index === 0 ? 'lg:row-span-2 aspect-[4/5] lg:aspect-auto lg:h-full min-h-[500px]' : 'aspect-[16/10] min-h-[280px]'
                                 }`}
                             >
-                                <img 
-                                    src={item.image} 
-                                    alt={item.title} 
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
+                                {/* Image Container with Aspect Ratio */}
+                                <div className="absolute inset-0 overflow-hidden">
+                                    <img 
+                                        src={item.image} 
+                                        alt={item.title} 
+                                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000 ease-out" 
+                                        loading={index === 0 ? "eager" : "lazy"}
+                                    />
+                                    {/* Multi-layer Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/10"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/30"></div>
+                                    {/* Hover Overlay Effect */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-orange-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                </div>
+                                
+                                {/* Content Overlay */}
+                                <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-10">
+                                    {/* Category Badge */}
                                     <div className="flex items-center gap-3 mb-4">
-                                        <span className="px-4 py-1.5 bg-amber-400 text-amber-950 text-[10px] font-black uppercase rounded-full">
+                                        <span className="px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-black uppercase rounded-full shadow-lg">
                                             {item.category}
                                         </span>
-                                        <div className="flex items-center gap-1.5 text-white/70 text-[10px] font-bold uppercase tracking-widest">
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(item.created_at).toLocaleDateString()}
+                                        <div className="flex items-center gap-2 text-white/80 text-xs font-bold uppercase tracking-wider bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                                            <Calendar className="w-3.5 h-3.5" />
+                                            {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </div>
                                     </div>
-                                    <h3 className={`font-black text-white leading-tight group-hover:text-amber-400 transition-colors ${
-                                        index === 0 ? 'text-2xl md:text-3xl lg:text-4xl' : 'text-xl md:text-2xl'
+                                    
+                                    {/* Title */}
+                                    <h3 className={`font-black text-white leading-tight group-hover:text-amber-300 transition-colors duration-300 drop-shadow-lg ${
+                                        index === 0 ? 'text-3xl md:text-4xl lg:text-5xl' : 'text-xl md:text-2xl lg:text-3xl'
                                     }`}>
                                         {item.title}
                                     </h3>
+                                    
+                                    {/* Summary for main article */}
                                     {index === 0 && (
-                                        <p className="mt-6 text-white/70 text-sm md:text-base line-clamp-2 max-w-2xl font-medium">
+                                        <p className="mt-4 text-white/80 text-base md:text-lg line-clamp-2 max-w-2xl font-medium leading-relaxed">
                                             {item.summary}
                                         </p>
                                     )}
+                                    
+                                    {/* Read More Indicator */}
+                                    <div className="mt-6 flex items-center gap-2 text-amber-400 font-bold text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+                                        <span>Read Full Story</span>
+                                        <ChevronRight className="w-5 h-5" />
+                                    </div>
+                                </div>
+                                
+                                {/* Corner Decoration */}
+                                <div className="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                    <Share2 className="w-5 h-5 text-white" />
                                 </div>
                             </Link>
                         ))}
@@ -88,35 +117,66 @@ export default function Index({ news, hot_news }) {
 
                         <div className="grid sm:grid-cols-2 gap-8">
                             {news.data.map((item) => (
-                                <div key={item.id} className="group bg-white dark:bg-gray-800 rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-500">
-                                    <div className="relative h-56 overflow-hidden">
-                                        <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                        <div className="absolute top-4 left-4 bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-1.5 rounded-full shadow-lg">
-                                            {item.category}
+                                <article key={item.id} className="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-500 transform hover:-translate-y-1">
+                                    {/* Image Container */}
+                                    <div className="relative aspect-[16/10] overflow-hidden">
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.title} 
+                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out" 
+                                            loading="lazy"
+                                        />
+                                        {/* Gradient Overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        
+                                        {/* Category Badge */}
+                                        <div className="absolute top-5 left-5 flex gap-2">
+                                            <span className="bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-2 rounded-full shadow-lg">
+                                                {item.category}
+                                            </span>
+                                        </div>
+                                        
+                                        {/* View Count on Hover */}
+                                        <div className="absolute bottom-5 left-5 flex items-center gap-2 text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-y-2 group-hover:translate-y-0">
+                                            <Eye className="w-4 h-4" />
+                                            <span>1.2k views</span>
                                         </div>
                                     </div>
-                                    <div className="p-8">
-                                        <div className="flex items-center gap-4 text-gray-400 text-[10px] font-bold mb-4 uppercase tracking-widest">
-                                            <div className="flex items-center gap-1.5">
-                                                <Calendar className="w-3 h-3 text-emerald-500" />
-                                                {new Date(item.created_at).toLocaleDateString()}
+                                    
+                                    {/* Content */}
+                                    <div className="p-7">
+                                        {/* Meta */}
+                                        <div className="flex items-center gap-4 text-gray-400 text-xs font-bold mb-3 uppercase tracking-wider">
+                                            <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full">
+                                                <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+                                                {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full">
+                                                <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                                                {Math.ceil(item.summary?.length / 200) || 3} min read
                                             </div>
                                         </div>
-                                        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4 group-hover:text-emerald-600 transition-colors leading-tight line-clamp-2">
+                                        
+                                        {/* Title */}
+                                        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 group-hover:text-emerald-600 transition-colors leading-tight line-clamp-2">
                                             {item.title}
                                         </h3>
-                                        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8 line-clamp-2">
+                                        
+                                        {/* Summary */}
+                                        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-5 line-clamp-2">
                                             {item.summary}
                                         </p>
+                                        
+                                        {/* CTA */}
                                         <Link 
                                             href={route('hot-news.show', item.slug)}
-                                            className="inline-flex items-center gap-2 text-emerald-600 font-black text-sm hover:translate-x-1 transition-transform"
+                                            className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 group/btn"
                                         >
-                                            Full Story
-                                            <ChevronRight className="w-4 h-4" />
+                                            Read Article
+                                            <ChevronRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" />
                                         </Link>
                                     </div>
-                                </div>
+                                </article>
                             ))}
                         </div>
 

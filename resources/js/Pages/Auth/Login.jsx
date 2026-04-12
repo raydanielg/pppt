@@ -29,20 +29,14 @@ export default function Login({ status, canResetPassword }) {
         <GuestLayout>
             <Head title="Log in" />
 
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+            <div className="mb-8 text-center">
+                <h1 className="text-3xl font-black tracking-tight text-gray-900">
                     Welcome back
                 </h1>
-                <p className="mt-1 text-sm text-gray-600">
-                    Log in to continue to your account.
+                <p className="mt-2 text-sm text-gray-600">
+                    Log in to continue to your account
                 </p>
             </div>
-
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
 
             <form onSubmit={submit}>
                 <div>
@@ -123,23 +117,25 @@ export default function Login({ status, canResetPassword }) {
                     )}
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-8">
                     <PrimaryButton
-                        className="w-full justify-center"
+                        className="w-full justify-center py-3 text-base font-bold shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all"
                         disabled={processing}
                     >
-                        Log in
+                        {processing ? 'Logging in...' : 'Log in'}
                     </PrimaryButton>
                 </div>
 
-                <div className="mt-6 text-center text-sm text-gray-600">
-                    Don&apos;t have an account?{' '}
-                    <Link
-                        href={route('register')}
-                        className="rounded-md font-medium text-green-700 underline underline-offset-4 hover:text-green-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
-                    >
-                        Sign up
-                    </Link>
+                <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+                    <p className="text-sm text-gray-600">
+                        Don&apos;t have an account?{' '}
+                        <Link
+                            href={route('register')}
+                            className="font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                        >
+                            Sign up for free
+                        </Link>
+                    </p>
                 </div>
             </form>
         </GuestLayout>

@@ -31,12 +31,12 @@ export default function Register() {
         <GuestLayout>
             <Head title="Register" />
 
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+            <div className="mb-8 text-center">
+                <h1 className="text-3xl font-black tracking-tight text-gray-900">
                     Create your account
                 </h1>
-                <p className="mt-1 text-sm text-gray-600">
-                    Join Physioplanet in a few seconds.
+                <p className="mt-2 text-sm text-gray-600">
+                    Join 10,000+ physiotherapy professionals
                 </p>
             </div>
 
@@ -165,20 +165,25 @@ export default function Register() {
                     />
                 </div>
 
-                <div className="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
-                    >
-                        Already registered?
-                    </Link>
-
+                <div className="mt-8">
                     <PrimaryButton
-                        className="sm:ms-4 sm:w-auto w-full justify-center"
+                        className="w-full justify-center py-3 text-base font-bold shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all"
                         disabled={processing}
                     >
-                        Register
+                        {processing ? 'Creating account...' : 'Create Account'}
                     </PrimaryButton>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+                    <p className="text-sm text-gray-600">
+                        Already have an account?{' '}
+                        <Link
+                            href={route('login')}
+                            className="font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                        >
+                            Log in
+                        </Link>
+                    </p>
                 </div>
             </form>
         </GuestLayout>
