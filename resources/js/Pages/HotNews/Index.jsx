@@ -35,10 +35,12 @@ export default function Index({ news, hot_news: hotNewsProp }) {
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-6">
-                        {hot_news && hot_news.length > 0 ? hot_news.map((item, index) => (
+                        {hot_news && hot_news.length > 0 ? hot_news.map((item, index) => {
+                            if (!item) return null;
+                            return (
                             <Link 
-                                key={item.id} 
-                                href={route('hot-news.show', item.slug)}
+                                key={item.id || index} 
+                                href={item.slug ? route('hot-news.show', item.slug) : '#'}
                                 className={`group relative rounded-3xl overflow-hidden transition-all duration-700 hover:shadow-3xl ${
                                     index === 0 ? 'lg:row-span-2 aspect-[4/5] lg:aspect-auto lg:h-full min-h-[500px]' : 'aspect-[16/10] min-h-[280px]'
                                 }`}
@@ -97,7 +99,7 @@ export default function Index({ news, hot_news: hotNewsProp }) {
                                     <Share2 className="w-5 h-5 text-white" />
                                 </div>
                             </Link>
-                        )) : (
+                        )}) : (
                             <div className="lg:col-span-2 flex flex-col items-center justify-center py-20 text-center">
                                 <div className="w-20 h-20 rounded-3xl bg-gray-100 flex items-center justify-center mb-6">
                                     <Flame className="w-10 h-10 text-gray-400" />
