@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import { Plus, Search, Trash2 } from 'lucide-react';
+import { Plus, Search, Trash2, Pencil, Calendar, TrendingUp, ExternalLink } from 'lucide-react';
 
 export default function Index({ news, filters }) {
     const flash = usePage().props.flash;
@@ -65,58 +65,104 @@ export default function Index({ news, filters }) {
                     </div>
                 </form>
 
-                <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200">
-                    <table className="min-w-full divide-y divide-gray-100">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-widest text-gray-500">Title</th>
-                                <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-widest text-gray-500">Category</th>
-                                <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-widest text-gray-500">Author</th>
-                                <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-widest text-gray-500">Hot</th>
-                                <th className="px-4 py-3 text-right text-[11px] font-black uppercase tracking-widest text-gray-500">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white">
-                            {rows.length ? (
-                                rows.map((n) => (
-                                    <tr key={n.id} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3">
-                                            <div className="text-sm font-black text-gray-900 truncate">{n.title}</div>
-                                            <div className="text-xs text-gray-500 truncate">{n.summary || n.content}</div>
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-700">{n.category}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-700">{n.author_name}</td>
-                                        <td className="px-4 py-3">
-                                            {n.is_hot ? (
-                                                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-amber-700">
+                {/* News Cards Grid */}
+                <div className="mt-4 grid gap-3">
+                    {rows.length ? (
+                        rows.map((n) => (
+                            <div
+                                key={n.id}
+                                className="group rounded-2xl border border-gray-200 bg-white p-4 hover:shadow-lg hover:border-emerald-200 transition-all duration-300"
+                            >
+                                <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                                    {/* Content Section */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start gap-3">
+                                            {/* Hot Badge */}
+                                            {n.is_hot && (
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
+                                                    <TrendingUp className="h-3 w-3" />
                                                     Hot
                                                 </span>
-                                            ) : (
-                                                <span className="text-xs text-gray-400">—</span>
                                             )}
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <button
-                                                type="button"
-                                                onClick={() => del(n.id)}
-                                                className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-700 hover:bg-rose-100"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="px-4 py-10 text-center">
-                                        <div className="text-sm font-black text-gray-900">No news found</div>
-                                        <div className="mt-1 text-xs text-gray-500">Create your first news post.</div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                            {/* Category Badge */}
+                                            <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                                                {n.category}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="mt-2 text-base font-black text-gray-900 leading-tight line-clamp-2 group-hover:text-emerald-700 transition-colors">
+                                            {n.title}
+                                        </h3>
+
+                                        <p className="mt-1.5 text-sm text-gray-500 line-clamp-2">
+                                            {n.summary || n.content?.substring(0, 120) + '...'}
+                                        </p>
+
+                                        <div className="mt-3 flex items-center gap-4 text-xs text-gray-400">
+                                            <span className="flex items-center gap-1.5">
+                                                <span className="font-medium text-gray-600">By:</span> {n.author_name}
+                                            </span>
+                                            <span className="flex items-center gap-1.5">
+                                                <Calendar className="h-3.5 w-3.5" />
+                                                {new Date(n.created_at).toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                })}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions Section - Grouped Buttons */}
+                                    <div className="flex items-center gap-0 lg:pt-1">
+                                        {/* Edit Button - Left */}
+                                        <Link
+                                            href={route('admin.hot-news.edit', n.id)}
+                                            className="inline-flex items-center gap-1.5 rounded-l-xl border border-gray-200 bg-white px-3 py-2 text-xs font-black text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-all -mr-px"
+                                        >
+                                            <Pencil className="h-3.5 w-3.5" />
+                                            Edit
+                                        </Link>
+
+                                        {/* View Button - Middle */}
+                                        <Link
+                                            href={route('hot-news.show', n.slug)}
+                                            target="_blank"
+                                            className="inline-flex items-center gap-1.5 border border-gray-200 bg-white px-3 py-2 text-xs font-black text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all -mr-px"
+                                        >
+                                            <ExternalLink className="h-3.5 w-3.5" />
+                                            View
+                                        </Link>
+
+                                        {/* Delete Button - Right */}
+                                        <button
+                                            type="button"
+                                            onClick={() => del(n.id)}
+                                            className="inline-flex items-center gap-1.5 rounded-r-xl border border-gray-200 bg-white px-3 py-2 text-xs font-black text-rose-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-all"
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-10 text-center">
+                            <div className="mx-auto w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+                                <Search className="h-6 w-6 text-gray-400" />
+                            </div>
+                            <div className="text-sm font-black text-gray-900">No news found</div>
+                            <div className="mt-1 text-xs text-gray-500">Create your first news post.</div>
+                            <Link
+                                href={route('admin.hot-news.create')}
+                                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white hover:bg-emerald-700"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Create News
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 {news?.links ? (

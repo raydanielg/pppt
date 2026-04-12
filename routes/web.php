@@ -160,6 +160,8 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
             Route::get('/', [AdminNewsController::class, 'index'])->name('index');
             Route::get('/create', [AdminNewsController::class, 'create'])->name('create');
             Route::post('/', [AdminNewsController::class, 'store'])->name('store');
+            Route::get('/{news}/edit', [AdminNewsController::class, 'edit'])->name('edit');
+            Route::put('/{news}', [AdminNewsController::class, 'update'])->name('update');
             Route::delete('/{news}', [AdminNewsController::class, 'destroy'])->name('destroy');
         });
 

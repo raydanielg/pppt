@@ -78,6 +78,50 @@ class AdminNewsController extends Controller
         return redirect()->route('admin.hot-news.index')->with('success', 'News created.');
     }
 
+    public function edit(News $news): Response
+    {
+        return Inertia::render('Admin/HotNews/Edit', [
+            'news' => $news,
+            'categories' => NewsCategory::query()->orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    public function update(Request $request, News $news): RedirectResponse
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'summary' => ['nullable', 'string'],
+            'content' => ['required', 'string'],
+            'category' => ['required', 'string', 'max:255'],
+            'author_name' => ['nullable', 'string', 'max:255'],
+            'is_hot' => ['nullable', 'boolean'],
+        ]);
+
+        // Only regenerate slug if title changed
+        $slug = $news->slug;
+        if ($data['title'] !== $news->title) {
+            $baseSlug = Str::slug($data['title']);
+            $slug = $baseSlug;
+            $i = 2;
+            while (News::query()->where('slug', $slug)->where('id', '!=', $news->id)->exists()) {
+                $slug = $baseSlug.'-'.$i;
+                $i++;
+            }
+        }
+
+        $news->update([
+            'title' => $data['title'],
+            'slug' => $slug,
+            'summary' => $data['summary'] ?? null,
+            'content' => $data['content'],
+            'category' => $data['category'],
+            'author_name' => $data['author_name'] ?? 'PhysioPlanet Editor',
+            'is_hot' => (bool) ($data['is_hot'] ?? false),
+        ]);
+
+        return redirect()->route('admin.hot-news.index')->with('success', 'News updated.');
+    }
+
     public function destroy(News $news): RedirectResponse
     {
         $news->delete();
