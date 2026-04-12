@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { Menu, X, User, LogIn, Home, Newspaper, Briefcase } from 'lucide-react';
+import { Menu, X, User, LogIn, Home, Newspaper, Briefcase, HeartPulse, Microscope, Library, ChevronDown } from 'lucide-react';
 
 const NavLink = ({ href, icon: Icon, children, active = false }) => (
     <Link
@@ -18,6 +18,7 @@ const NavLink = ({ href, icon: Icon, children, active = false }) => (
 
 export default function PublicLayout({ children, title }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [platformOpen, setPlatformOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const { auth } = usePage().props;
     const user = auth?.user;
@@ -27,6 +28,13 @@ export default function PublicLayout({ children, title }) {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Platform dropdown items
+    const platformItems = [
+        { href: route('health-tips'), label: 'Health Tips', icon: HeartPulse, active: route().current('health-tips') },
+        { href: route('research-tips'), label: 'Research', icon: Microscope, active: route().current('research-tips') },
+        { href: route('pt-library'), label: 'Library', icon: Library, active: route().current('pt-library') },
+    ];
 
     const mainNav = [
         { href: route('hot-news'), label: 'Hot News', icon: Newspaper, active: route().current('hot-news') || route().current('hot-news.show') },
@@ -59,6 +67,44 @@ export default function PublicLayout({ children, title }) {
                                     {item.label}
                                 </NavLink>
                             ))}
+
+                            {/* Platform Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setPlatformOpen(!platformOpen)}
+                                    onMouseEnter={() => setPlatformOpen(true)}
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all ${
+                                        platformItems.some(item => item.active)
+                                            ? 'bg-emerald-100 text-emerald-700'
+                                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                                    }`}
+                                >
+                                    Platform
+                                    <ChevronDown className={`h-4 w-4 transition-transform ${platformOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {platformOpen && (
+                                    <div
+                                        onMouseLeave={() => setPlatformOpen(false)}
+                                        className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50"
+                                    >
+                                        {platformItems.map((item) => (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all ${
+                                                    item.active
+                                                        ? 'bg-emerald-50 text-emerald-700'
+                                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                                }`}
+                                            >
+                                                <item.icon className="h-4 w-4" />
+                                                {item.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </nav>
 
                         {/* Auth Buttons */}
@@ -115,6 +161,17 @@ export default function PublicLayout({ children, title }) {
                                     {item.label}
                                 </NavLink>
                             ))}
+
+                            {/* Platform Section - Mobile */}
+                            <div className="pt-2 mt-2 border-t border-gray-100">
+                                <div className="px-3 py-2 text-xs font-black text-gray-400 uppercase tracking-widest">Platform</div>
+                                {platformItems.map((item) => (
+                                    <NavLink key={item.href} {...item}>
+                                        {item.label}
+                                    </NavLink>
+                                ))}
+                            </div>
+
                             {!user && (
                                 <div className="pt-4 border-t border-gray-100 mt-4 space-y-1">
                                     <NavLink href={route('login')} icon={LogIn}>Log In</NavLink>
