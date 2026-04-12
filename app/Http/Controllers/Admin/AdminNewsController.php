@@ -45,6 +45,9 @@ class AdminNewsController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Log incoming request data for debugging
+        \Log::info('News store request data:', $request->all());
+
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'summary' => ['nullable', 'string'],

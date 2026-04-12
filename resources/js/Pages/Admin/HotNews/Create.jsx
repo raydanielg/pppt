@@ -13,9 +13,26 @@ export default function Create({ categories = [] }) {
         is_hot: false,
     });
 
+    // Transform is_hot to boolean before submission
+    form.transform((data) => ({
+        ...data,
+        is_hot: data.is_hot === true || data.is_hot === 'on' || data.is_hot === 1,
+    }));
+
     const submit = (e) => {
         e.preventDefault();
-        form.post(route('admin.hot-news.store'));
+        
+        // Clear previous errors
+        form.clearErrors();
+        
+        form.post(route('admin.hot-news.store'), {
+            onError: (errors) => {
+                console.log('Validation errors:', errors);
+            },
+            onSuccess: () => {
+                form.reset();
+            },
+        });
     };
 
     return (
@@ -37,24 +54,57 @@ export default function Create({ categories = [] }) {
                         </Link>
                         <button
                             type="submit"
-                            disabled={form.processing}
-                            className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white hover:bg-emerald-700 disabled:opacity-60"
+                            disabled={form.processing || !form.data.title || !form.data.content}
+                            className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                         >
-                            Publish
+                            {form.processing ? (
+                                <>
+                                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Publishing...
+                                </>
+                            ) : (
+                                'Publish'
+                            )}
                         </button>
                     </div>
                 </div>
 
-                {flash?.error ? (
-                    <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-black text-rose-800">
-                        {flash.error}
+                {/* Global Error Summary */}
+                {(flash?.error || Object.keys(form.errors).length > 0) && (
+                    <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-4">
+                        <div className="flex items-start gap-3">
+                            <svg className="h-5 w-5 text-rose-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <h3 className="text-sm font-black text-rose-800 mb-1">
+                                    {flash?.error || 'Please fix the following errors:'}
+                                </h3>
+                                {Object.keys(form.errors).length > 0 && (
+                                    <ul className="text-xs text-rose-700 list-disc list-inside space-y-1">
+                                        {Object.entries(form.errors).map(([field, error]) => (
+                                            <li key={field}>
+                                                <span className="font-bold capitalize">{field}:</span> {Array.isArray(error) ? error[0] : error}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                ) : null}
+                )}
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
                     <div>
-                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">Category</label>
+                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">
+                            Category <span className="text-rose-500">*</span>
+                        </label>
                         <select
+                            name="category"
+                            id="category"
                             value={form.data.category}
                             onChange={(e) => form.setData('category', e.target.value)}
                             className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500"
@@ -73,6 +123,9 @@ export default function Create({ categories = [] }) {
                     <div>
                         <label className="text-xs font-black uppercase tracking-widest text-gray-500">Author</label>
                         <input
+                            type="text"
+                            name="author_name"
+                            id="author_name"
                             value={form.data.author_name}
                             onChange={(e) => form.setData('author_name', e.target.value)}
                             className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500"
@@ -84,8 +137,13 @@ export default function Create({ categories = [] }) {
                     </div>
 
                     <div className="md:col-span-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">Title</label>
+                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">
+                            Title <span className="text-rose-500">*</span>
+                        </label>
                         <input
+                            type="text"
+                            name="title"
+                            id="title"
                             value={form.data.title}
                             onChange={(e) => form.setData('title', e.target.value)}
                             className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500"
@@ -99,6 +157,8 @@ export default function Create({ categories = [] }) {
                     <div className="md:col-span-2">
                         <label className="text-xs font-black uppercase tracking-widest text-gray-500">Summary (optional)</label>
                         <textarea
+                            name="summary"
+                            id="summary"
                             value={form.data.summary}
                             onChange={(e) => form.setData('summary', e.target.value)}
                             className="mt-2 h-24 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500"
@@ -110,8 +170,12 @@ export default function Create({ categories = [] }) {
                     </div>
 
                     <div className="md:col-span-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">Content</label>
+                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">
+                            Content <span className="text-rose-500">*</span>
+                        </label>
                         <textarea
+                            name="content"
+                            id="content"
                             value={form.data.content}
                             onChange={(e) => form.setData('content', e.target.value)}
                             className="mt-2 h-64 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500"
@@ -123,15 +187,20 @@ export default function Create({ categories = [] }) {
                     </div>
 
                     <div className="md:col-span-2">
-                        <label className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-black text-gray-700">
+                        <label className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-black text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors">
                             <input
                                 type="checkbox"
-                                checked={!!form.data.is_hot}
+                                name="is_hot"
+                                id="is_hot"
+                                checked={form.data.is_hot === true}
                                 onChange={(e) => form.setData('is_hot', e.target.checked)}
-                                className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                             />
-                            Mark as Hot (Trending)
+                            <span>Mark as Hot (Trending)</span>
                         </label>
+                        {form.errors.is_hot ? (
+                            <div className="mt-1 text-xs font-bold text-rose-600">{form.errors.is_hot}</div>
+                        ) : null}
                     </div>
                 </div>
             </form>
