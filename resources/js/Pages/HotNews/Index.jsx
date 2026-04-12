@@ -219,8 +219,10 @@ export default function Index({ news, hot_news: hotNewsProp }) {
                                 <h3 className="text-lg font-black uppercase tracking-tight text-gray-900 dark:text-white">Trending</h3>
                             </div>
                             <div className="space-y-8">
-                                {news.data.slice(0, 4).map((item, i) => (
-                                    <Link key={item.id} href={route('hot-news.show', item.slug)} className="flex gap-5 group">
+                                {news?.data?.slice(0, 4).map((item, i) => {
+                                    if (!item) return null;
+                                    return (
+                                    <Link key={item.id || i} href={item.slug ? route('hot-news.show', item.slug) : '#'} className="flex gap-5 group">
                                         <span className="text-3xl font-black text-gray-100 dark:text-gray-700 group-hover:text-emerald-500 transition-colors">0{i+1}</span>
                                         <div className="min-w-0">
                                             <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1 block">{item.category}</span>
@@ -229,7 +231,7 @@ export default function Index({ news, hot_news: hotNewsProp }) {
                                             </h4>
                                         </div>
                                     </Link>
-                                ))}
+                                )})}
                             </div>
                         </div>
 
