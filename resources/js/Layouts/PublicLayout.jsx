@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown, User, LogIn, Home, Newspaper, HeartPulse, Microscope, BookOpen, Briefcase, Image, Library, MessageSquare, Users } from 'lucide-react';
+import { Menu, X, User, LogIn, Home, Newspaper, Briefcase } from 'lucide-react';
 
 const NavLink = ({ href, icon: Icon, children, active = false }) => (
     <Link
@@ -30,9 +30,7 @@ export default function PublicLayout({ children, title }) {
 
     const mainNav = [
         { href: route('hot-news'), label: 'Hot News', icon: Newspaper, active: route().current('hot-news') || route().current('hot-news.show') },
-        { href: route('health-tips'), label: 'Health Tips', icon: HeartPulse, active: route().current('health-tips') },
-        { href: route('research-tips'), label: 'Research', icon: Microscope, active: route().current('research-tips') },
-        { href: route('pt-library'), label: 'Library', icon: Library, active: route().current('pt-library') },
+        { href: route('pen'), label: 'PEN', icon: Briefcase, active: route().current('pen') },
     ];
 
     return (
