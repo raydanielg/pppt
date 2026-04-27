@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfMembershipPaymentRequired
@@ -26,18 +25,8 @@ class RedirectIfMembershipPaymentRequired
             return $next($request);
         }
 
-        $cutoff = config('app.membership_payment_required_from');
-        if (! $cutoff) {
-            return $next($request);
-        }
-
-        try {
-            $cutoffDate = Carbon::parse($cutoff)->startOfDay();
-        } catch (\Throwable $e) {
-            return $next($request);
-        }
-
-        if ($user->created_at && $user->created_at->lt($cutoffDate)) {
+        // Users with ID >= 250 must pay (ID-based cutoff)
+        if ($user->id < 250) {
             return $next($request);
         }
 

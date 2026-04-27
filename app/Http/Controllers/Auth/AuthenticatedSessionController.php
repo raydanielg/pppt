@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,15 +35,9 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        $cutoff = config('app.membership_payment_required_from');
-        if ($user && $cutoff && method_exists($user, 'hasRole') && ! $user->hasRole('admin')) {
-            try {
-                $cutoffDate = Carbon::parse($cutoff)->startOfDay();
-            } catch (\Throwable $e) {
-                $cutoffDate = null;
-            }
-
-            if ($cutoffDate && $user->created_at && $user->created_at->gte($cutoffDate) && ! $user->hasPaidMembership()) {
+        // Users with ID >= 250 must pay (ID-based cutoff)
+        if ($user && method_exists($user, 'hasRole') && ! $user->hasRole('admin')) {
+            if ($user->id >= 250 && ! $user->hasPaidMembership()) {
                 return redirect()->route('onboarding.payment');
             }
         }
