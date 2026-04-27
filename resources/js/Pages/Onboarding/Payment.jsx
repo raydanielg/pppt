@@ -10,11 +10,33 @@ function normalizePhone(v) {
     return (v || '').replace(/\s+/g, '').replace(/^\+/, '');
 }
 
+function getCsrfToken() {
+    // Try meta tag first
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta) {
+        const token = meta.getAttribute('content');
+        if (token) return token;
+    }
+
+    // Fallback to XSRF-TOKEN cookie (Laravel default)
+    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+    if (match) {
+        try {
+            return decodeURIComponent(match[1]);
+        } catch {
+            return match[1];
+        }
+    }
+
+    return null;
+}
+
 export default function Payment({ amount, currency, payment }) {
     const [paymentType, setPaymentType] = useState(payment?.type || 'mobile');
     const [phone, setPhone] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [apiError, setApiError] = useState(null);
+    const [csrfToken, setCsrfToken] = useState(null);
 
     const [reference, setReference] = useState(payment?.reference || null);
     const [status, setStatus] = useState(payment?.status || null);
@@ -23,16 +45,28 @@ export default function Payment({ amount, currency, payment }) {
 
     const pollTimer = useRef(null);
 
+    // Read CSRF token after mount (DOM ready)
+    useEffect(() => {
+        const token = getCsrfToken();
+        setCsrfToken(token);
+
+        if (!token) {
+            setApiError('CSRF token not found. Please refresh the page.');
+        }
+    }, []);
+
     const canStart = useMemo(() => {
         if (paid) return false;
+        if (!csrfToken) return false;
         if (paymentType === 'card') return true;
 
         const n = normalizePhone(phone);
         return n.length >= 10;
-    }, [paid, paymentType, phone]);
+    }, [paid, paymentType, phone, csrfToken]);
 
     async function pollOnce() {
         const res = await fetch(route('onboarding.payment.status'), {
+            credentials: 'same-origin',
             headers: { Accept: 'application/json' },
         });
         const json = await res.json();
@@ -78,19 +112,23 @@ export default function Payment({ amount, currency, payment }) {
     const startPayment = async (e) => {
         e.preventDefault();
 
+        if (!csrfToken) {
+            setApiError('CSRF token not found. Please refresh the page.');
+            return;
+        }
+
         setApiError(null);
         setSubmitting(true);
 
         try {
             const res = await fetch(route('onboarding.payment.start'), {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name="csrf-token"]')
-                        ?.getAttribute('content'),
+                    'X-XSRF-TOKEN': csrfToken,
                 },
                 body: JSON.stringify({
                     payment_type: paymentType,
