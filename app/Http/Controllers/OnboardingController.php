@@ -27,7 +27,7 @@ class OnboardingController
             'country' => $validated['country'],
         ]);
 
-        return redirect()->route('onboarding.confirm');
+        return redirect()->route('onboarding.payment');
     }
 
     public function confirm(Request $request): Response
@@ -77,9 +77,8 @@ class OnboardingController
     {
         $user = $request->user();
 
-        if (! $user->membership_number) {
-            $user->membership_number = $this->generateMembershipNumber($user->id);
-            $user->save();
+        if (! $user->hasPaidMembership()) {
+            return redirect()->route('onboarding.payment');
         }
 
         return Inertia::render('Onboarding/Membership', [
@@ -101,10 +100,4 @@ class OnboardingController
         return redirect()->route('dashboard');
     }
 
-    private function generateMembershipNumber(int $userId): string
-    {
-        $year = now()->format('Y');
-
-        return sprintf('PPT-%s-%06d', $year, $userId);
-    }
 }

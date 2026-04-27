@@ -6,6 +6,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\OnboardingCountriesController;
+use App\Http\Controllers\OnboardingPaymentController;
 use App\Http\Controllers\HealthTipController;
 use App\Http\Controllers\ResearchTipController;
 use App\Http\Controllers\BookController;
@@ -55,6 +56,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/country', [OnboardingController::class, 'country'])->name('country');
         Route::post('/country', [OnboardingController::class, 'storeCountry'])->name('country.store');
 
+        Route::get('/payment', [OnboardingPaymentController::class, 'show'])->name('payment');
+        Route::post('/payment/start', [OnboardingPaymentController::class, 'start'])->name('payment.start');
+        Route::get('/payment/status', [OnboardingPaymentController::class, 'status'])->name('payment.status');
+
         Route::get('/confirm', [OnboardingController::class, 'confirm'])->name('confirm');
         Route::post('/confirm', [OnboardingController::class, 'storeConfirm'])->name('confirm.store');
 
@@ -64,6 +69,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/countries', [OnboardingCountriesController::class, 'index'])->name('countries');
     });
 });
+
+Route::post('/webhooks/snippe', [\App\Http\Controllers\SnippeWebhookController::class, 'handle'])->name('webhooks.snippe');
 
 Route::middleware(['auth', 'onboarding'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

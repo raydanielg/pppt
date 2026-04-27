@@ -28,6 +28,10 @@ class User extends Authenticatable
         'avatar_path',
         'membership_number',
         'onboarding_completed',
+        'membership_payment_status',
+        'membership_payment_reference',
+        'membership_payment_type',
+        'membership_paid_at',
     ];
 
     /**
@@ -52,7 +56,13 @@ class User extends Authenticatable
             'last_seen_at' => 'datetime',
             'password' => 'hashed',
             'onboarding_completed' => 'boolean',
+            'membership_paid_at' => 'datetime',
         ];
+    }
+
+    public function hasPaidMembership(): bool
+    {
+        return $this->membership_payment_status === 'completed' && $this->membership_paid_at !== null;
     }
 
     public function reviews(): HasMany
