@@ -79,7 +79,7 @@ class OnboardingPaymentController
                 'lastname' => $this->guessLastName($user->name),
                 'email' => $user->email,
             ],
-            'webhook_url' => route('webhooks.snippe'),
+            'webhook_url' => secure_url(route('webhooks.snippe', [], false)),
             'metadata' => [
                 'user_id' => $user->id,
                 'purpose' => 'membership',
