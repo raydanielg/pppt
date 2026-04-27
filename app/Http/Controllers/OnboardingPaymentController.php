@@ -49,7 +49,7 @@ class OnboardingPaymentController
         }
 
         $validated = $request->validate([
-            'payment_type' => ['required', 'in:mobile,card'],
+            'payment_type' => ['required', 'in:mobile'],
             'phone_number' => ['nullable', 'string', 'max:30'],
         ]);
 
@@ -86,11 +86,6 @@ class OnboardingPaymentController
                 'purpose' => 'membership',
             ],
         ];
-
-        if ($paymentType === 'card') {
-            $payload['details']['redirect_url'] = route('onboarding.payment');
-            $payload['details']['cancel_url'] = route('onboarding.payment');
-        }
 
         try {
             $response = Http::connectTimeout(10)

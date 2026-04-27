@@ -3,7 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 function normalizePhone(v) {
@@ -21,7 +21,6 @@ function getCsrfToken() {
 }
 
 export default function Payment({ amount, currency, payment }) {
-    const [paymentType, setPaymentType] = useState(payment?.type || 'mobile');
     const [phone, setPhone] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [apiError, setApiError] = useState(null);
@@ -35,12 +34,10 @@ export default function Payment({ amount, currency, payment }) {
 
     const canStart = useMemo(() => {
         if (paid) return false;
-        if (paymentType === 'card') return true;
-
         // User enters 7XXXXXXXX (9 digits), we add 255 to make 2557XXXXXXXX (12 digits)
         const n = phone.replace(/\D/g, '');
         return n.length >= 9;
-    }, [paid, paymentType, phone]);
+    }, [paid, phone]);
 
     async function pollOnce() {
         const res = await fetch(route('onboarding.payment.status'), {
@@ -87,6 +84,16 @@ export default function Payment({ amount, currency, payment }) {
         };
     }, [reference, paid]);
 
+    useEffect(() => {
+        if (!paid) return;
+
+        const t = setTimeout(() => {
+            window.location.href = route('onboarding.confirm');
+        }, 900);
+
+        return () => clearTimeout(t);
+    }, [paid]);
+
     const startPayment = async (e) => {
         e.preventDefault();
 
@@ -110,11 +117,9 @@ export default function Payment({ amount, currency, payment }) {
                     'X-CSRF-TOKEN': csrfToken,
                 },
                 body: JSON.stringify({
-                    payment_type: paymentType,
+                    payment_type: 'mobile',
                     phone_number:
-                        paymentType === 'mobile'
-                            ? normalizePhone(phone)
-                            : null,
+                        normalizePhone(phone),
                 }),
             });
 
@@ -130,14 +135,7 @@ export default function Payment({ amount, currency, payment }) {
             if (data?.reference) setReference(data.reference);
             if (data?.status) setStatus(data.status);
 
-            if (paymentType === 'card' && data?.payment_url) {
-                window.location.href = data.payment_url;
-                return;
-            }
-
-            if (paymentType === 'mobile') {
-                await pollOnce();
-            }
+            await pollOnce();
         } catch (err) {
             setApiError('Failed to start payment');
         } finally {
@@ -167,59 +165,29 @@ export default function Payment({ amount, currency, payment }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel value="Payment method" />
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setPaymentType('mobile')}
-                            className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                                paymentType === 'mobile'
-                                    ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
-                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                            }`}
-                        >
-                            Mobile Money
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setPaymentType('card')}
-                            className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                                paymentType === 'card'
-                                    ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
-                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                            }`}
-                        >
-                            Card
-                        </button>
+                    <InputLabel htmlFor="phone" value="Phone number" />
+                    <div className="mt-1 flex items-center">
+                        <div className="flex-shrink-0 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600">
+                            +255
+                        </div>
+                        <TextInput
+                            id="phone"
+                            name="phone"
+                            value={phone}
+                            placeholder="7XXXXXXXX"
+                            className="block w-full rounded-l-none"
+                            onChange={(e) => {
+                                // Only allow digits, max 9 digits after 255
+                                const val = e.target.value.replace(/\D/g, '').slice(0, 9);
+                                setPhone(val);
+                            }}
+                            autoComplete="tel"
+                        />
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                        Enter your number (e.g., 712345678)
                     </div>
                 </div>
-
-                {paymentType === 'mobile' && (
-                    <div className="mt-4">
-                        <InputLabel htmlFor="phone" value="Phone number" />
-                        <div className="mt-1 flex items-center">
-                            <div className="flex-shrink-0 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600">
-                                +255
-                            </div>
-                            <TextInput
-                                id="phone"
-                                name="phone"
-                                value={phone}
-                                placeholder="7XXXXXXXX"
-                                className="block w-full rounded-l-none"
-                                onChange={(e) => {
-                                    // Only allow digits, max 9 digits after 255
-                                    const val = e.target.value.replace(/\D/g, '').slice(0, 9);
-                                    setPhone(val);
-                                }}
-                                autoComplete="tel"
-                            />
-                        </div>
-                        <div className="mt-1 text-xs text-gray-500">
-                            Enter your number (e.g., 712345678)
-                        </div>
-                    </div>
-                )}
 
                 <div className="mt-4">
                     <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
@@ -259,9 +227,7 @@ export default function Payment({ amount, currency, payment }) {
                         className="w-full justify-center"
                         disabled={!canStart || submitting}
                     >
-                        {paymentType === 'card'
-                            ? 'Continue to card checkout'
-                            : 'Request USSD push'}
+                        Pay now
                     </PrimaryButton>
                 </form>
 
