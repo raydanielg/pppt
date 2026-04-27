@@ -3,32 +3,21 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 function normalizePhone(v) {
-    return (v || '').replace(/\s+/g, '').replace(/^\+/, '');
+    const cleaned = (v || '').replace(/\s+/g, '').replace(/^\+/, '');
+    // User enters 7XXXXXXXX, we need 2557XXXXXXXX for API
+    if (cleaned && !cleaned.startsWith('255')) {
+        return '255' + cleaned;
+    }
+    return cleaned;
 }
 
 function getCsrfToken() {
-    // Try meta tag first
     const meta = document.querySelector('meta[name="csrf-token"]');
-    if (meta) {
-        const token = meta.getAttribute('content');
-        if (token) return token;
-    }
-
-    // Fallback to XSRF-TOKEN cookie (Laravel default)
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    if (match) {
-        try {
-            return decodeURIComponent(match[1]);
-        } catch {
-            return match[1];
-        }
-    }
-
-    return null;
+    return meta?.getAttribute('content') || '';
 }
 
 export default function Payment({ amount, currency, payment }) {
@@ -36,7 +25,6 @@ export default function Payment({ amount, currency, payment }) {
     const [phone, setPhone] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [apiError, setApiError] = useState(null);
-    const [csrfToken, setCsrfToken] = useState(null);
 
     const [reference, setReference] = useState(payment?.reference || null);
     const [status, setStatus] = useState(payment?.status || null);
@@ -45,24 +33,14 @@ export default function Payment({ amount, currency, payment }) {
 
     const pollTimer = useRef(null);
 
-    // Read CSRF token after mount (DOM ready)
-    useEffect(() => {
-        const token = getCsrfToken();
-        setCsrfToken(token);
-
-        if (!token) {
-            setApiError('CSRF token not found. Please refresh the page.');
-        }
-    }, []);
-
     const canStart = useMemo(() => {
         if (paid) return false;
-        if (!csrfToken) return false;
         if (paymentType === 'card') return true;
 
-        const n = normalizePhone(phone);
-        return n.length >= 10;
-    }, [paid, paymentType, phone, csrfToken]);
+        // User enters 7XXXXXXXX (9 digits), we add 255 to make 2557XXXXXXXX (12 digits)
+        const n = phone.replace(/\D/g, '');
+        return n.length >= 9;
+    }, [paid, paymentType, phone]);
 
     async function pollOnce() {
         const res = await fetch(route('onboarding.payment.status'), {
@@ -112,6 +90,7 @@ export default function Payment({ amount, currency, payment }) {
     const startPayment = async (e) => {
         e.preventDefault();
 
+        const csrfToken = getCsrfToken();
         if (!csrfToken) {
             setApiError('CSRF token not found. Please refresh the page.');
             return;
@@ -128,7 +107,7 @@ export default function Payment({ amount, currency, payment }) {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-XSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': csrfToken,
                 },
                 body: JSON.stringify({
                     payment_type: paymentType,
@@ -218,17 +197,26 @@ export default function Payment({ amount, currency, payment }) {
                 {paymentType === 'mobile' && (
                     <div className="mt-4">
                         <InputLabel htmlFor="phone" value="Phone number" />
-                        <TextInput
-                            id="phone"
-                            name="phone"
-                            value={phone}
-                            placeholder="2557XXXXXXXX"
-                            className="mt-1 block w-full"
-                            onChange={(e) => setPhone(e.target.value)}
-                            autoComplete="tel"
-                        />
+                        <div className="mt-1 flex items-center">
+                            <div className="flex-shrink-0 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600">
+                                +255
+                            </div>
+                            <TextInput
+                                id="phone"
+                                name="phone"
+                                value={phone}
+                                placeholder="7XXXXXXXX"
+                                className="block w-full rounded-l-none"
+                                onChange={(e) => {
+                                    // Only allow digits, max 9 digits after 255
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 9);
+                                    setPhone(val);
+                                }}
+                                autoComplete="tel"
+                            />
+                        </div>
                         <div className="mt-1 text-xs text-gray-500">
-                            Use format: 255XXXXXXXXX
+                            Enter your number (e.g., 712345678)
                         </div>
                     </div>
                 )}
