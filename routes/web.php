@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminBookController;
 use App\Http\Controllers\Admin\AdminNoteController;
 use App\Http\Controllers\Admin\AdminLibraryCategoryController;
+use App\Http\Controllers\Admin\AdminPaymentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -47,7 +48,7 @@ Route::get('/pen', function () {
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'onboarding'])->name('dashboard');
+})->middleware(['auth', 'verified', 'onboarding', 'membership_payment'])->name('dashboard');
 
 Route::get('/docs/icons', function () {
     return Inertia::render('Docs/Icons');
@@ -72,7 +73,7 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::middleware(['auth', 'onboarding'])->group(function () {
+Route::middleware(['auth', 'onboarding', 'membership_payment'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -136,6 +137,8 @@ Route::middleware(['auth', 'onboarding'])->group(function () {
         Route::get('/', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('dashboard');
+
+        Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
 
         Route::prefix('health-tips')->name('health-tips.')->group(function () {
             Route::get('/', [AdminHealthTipController::class, 'index'])->name('index');

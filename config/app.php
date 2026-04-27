@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'membership_payment_required_from' => env('MEMBERSHIP_PAYMENT_REQUIRED_FROM'),
+
 ];
