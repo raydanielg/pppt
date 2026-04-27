@@ -35,6 +35,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::post('/webhooks/snippe', [\App\Http\Controllers\SnippeWebhookController::class, 'handle'])->name('webhooks.snippe');
+
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
@@ -69,8 +71,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/countries', [OnboardingCountriesController::class, 'index'])->name('countries');
     });
 });
-
-Route::post('/webhooks/snippe', [\App\Http\Controllers\SnippeWebhookController::class, 'handle'])->name('webhooks.snippe');
 
 Route::middleware(['auth', 'onboarding'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

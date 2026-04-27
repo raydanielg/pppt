@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/snippe',
+        ]);
+
         $middleware->alias([
             'onboarding' => \App\Http\Middleware\RedirectIfOnboardingIncomplete::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
