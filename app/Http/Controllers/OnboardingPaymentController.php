@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -91,13 +92,23 @@ class OnboardingPaymentController
             $payload['details']['cancel_url'] = route('onboarding.payment');
         }
 
-        $response = Http::timeout(20)
-            ->withToken($apiKey)
-            ->withHeaders([
-                'Idempotency-Key' => $idempotencyKey,
-                'Content-Type' => 'application/json',
-            ])
-            ->post('https://api.snippe.sh/v1/payments', $payload);
+        try {
+            $response = Http::connectTimeout(10)
+                ->timeout(60)
+                ->retry(2, 500, throw: false)
+                ->withToken($apiKey)
+                ->withHeaders([
+                    'Idempotency-Key' => $idempotencyKey,
+                    'Content-Type' => 'application/json',
+                ])
+                ->post('https://api.snippe.sh/v1/payments', $payload);
+        } catch (ConnectionException $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 504,
+                'message' => 'Unable to reach Snippe API (timeout). Please try again.',
+            ], 504);
+        }
 
         if (! $response->successful()) {
             return response()->json([
