@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\OpportunityApplication;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,43 +17,63 @@ class AdminPaymentController extends Controller
         $q = trim((string) $request->query('q', ''));
         $status = trim((string) $request->query('status', ''));
 
-        $query = User::query()->orderByDesc('membership_paid_at')->orderByDesc('created_at');
+        // Query Registration Payments (Users table)
+        $regPayments = DB::table('users')
+            ->select([
+                DB::raw("'registration' as type"),
+                'id as source_id',
+                'name',
+                'email',
+                'membership_payment_status as status',
+                'membership_payment_reference as reference',
+                'membership_paid_at as paid_at',
+                'created_at',
+                DB::raw("NULL as extra_info")
+            ]);
+
+        // Query Job Application Payments (OpportunityApplications table)
+        $jobPayments = DB::table('opportunity_applications')
+            ->join('users', 'opportunity_applications.user_id', '=', 'users.id')
+            ->select([
+                DB::raw("'job_application' as type"),
+                'opportunity_applications.id as source_id',
+                'users.name',
+                'users.email',
+                'opportunity_applications.payment_status as status',
+                'opportunity_applications.payment_reference as reference',
+                'opportunity_applications.paid_at as paid_at',
+                'opportunity_applications.created_at',
+                'opportunity_applications.advert_name as extra_info'
+            ]);
+
+        // Combine using Union
+        $combinedQuery = DB::table(DB::raw("({$regPayments->toSql()} UNION ALL {$jobPayments->toSql()}) as combined"))
+            ->mergeBindings($regPayments)
+            ->mergeBindings($jobPayments)
+            ->orderByDesc('paid_at')
+            ->orderByDesc('created_at');
 
         if ($status !== '') {
-            $query->where('membership_payment_status', $status);
+            $combinedQuery->where('status', $status);
         }
 
         if ($q !== '') {
-            $query->where(function ($qb) use ($q) {
+            $combinedQuery->where(function ($qb) use ($q) {
                 $qb->where('name', 'like', '%'.$q.'%')
                     ->orWhere('email', 'like', '%'.$q.'%')
-                    ->orWhere('membership_number', 'like', '%'.$q.'%')
-                    ->orWhere('membership_payment_reference', 'like', '%'.$q.'%');
+                    ->orWhere('reference', 'like', '%'.$q.'%')
+                    ->orWhere('extra_info', 'like', '%'.$q.'%');
             });
         }
 
-        $paginated = $query->paginate(20)->withQueryString();
-        $paginated->getCollection()->transform(function (User $u) {
-            return [
-                'id' => $u->id,
-                'name' => $u->name,
-                'email' => $u->email,
-                'country' => $u->country,
-                'created_at' => $u->created_at,
-                'membership_number' => $u->membership_number,
-                'payment_status' => $u->membership_payment_status,
-                'payment_reference' => $u->membership_payment_reference,
-                'payment_type' => $u->membership_payment_type,
-                'paid_at' => $u->membership_paid_at,
-            ];
-        });
+        $payments = $combinedQuery->paginate(20)->withQueryString();
 
         return Inertia::render('Admin/Payments/Index', [
             'filters' => [
                 'q' => $q,
                 'status' => $status,
             ],
-            'payments' => $paginated,
+            'payments' => $payments,
         ]);
     }
 }

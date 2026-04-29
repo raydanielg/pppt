@@ -55,7 +55,13 @@ class AdminNewsController extends Controller
             'category' => ['required', 'string', 'max:255'],
             'author_name' => ['nullable', 'string', 'max:255'],
             'is_hot' => ['nullable', 'boolean'],
+            'image' => ['nullable', 'image', 'max:2048'],
         ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = '/storage/'.$request->file('image')->store('news', 'public');
+        }
 
         $baseSlug = Str::slug($data['title']);
         $slug = $baseSlug;
@@ -70,6 +76,7 @@ class AdminNewsController extends Controller
             'slug' => $slug,
             'summary' => $data['summary'] ?? null,
             'content' => $data['content'],
+            'image' => $imagePath,
             'category' => $data['category'],
             'author_name' => $data['author_name'] ?? 'PhysioPlanet Editor',
             'is_hot' => (bool) ($data['is_hot'] ?? false),
@@ -95,6 +102,7 @@ class AdminNewsController extends Controller
             'category' => ['required', 'string', 'max:255'],
             'author_name' => ['nullable', 'string', 'max:255'],
             'is_hot' => ['nullable', 'boolean'],
+            'image' => ['nullable', 'image', 'max:2048'],
         ]);
 
         // Only regenerate slug if title changed
@@ -109,7 +117,7 @@ class AdminNewsController extends Controller
             }
         }
 
-        $news->update([
+        $updateData = [
             'title' => $data['title'],
             'slug' => $slug,
             'summary' => $data['summary'] ?? null,
@@ -117,7 +125,13 @@ class AdminNewsController extends Controller
             'category' => $data['category'],
             'author_name' => $data['author_name'] ?? 'PhysioPlanet Editor',
             'is_hot' => (bool) ($data['is_hot'] ?? false),
-        ]);
+        ];
+
+        if ($request->hasFile('image')) {
+            $updateData['image'] = '/storage/'.$request->file('image')->store('news', 'public');
+        }
+
+        $news->update($updateData);
 
         return redirect()->route('admin.hot-news.index')->with('success', 'News updated.');
     }

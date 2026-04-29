@@ -18,7 +18,19 @@ class OpportunityApplication extends Model
         'cover_letter_original_name',
         'cover_letter_mime',
         'cover_letter_size',
+        'payment_status',
+        'payment_reference',
+        'paid_at',
     ];
+
+    protected $casts = [
+        'paid_at' => 'datetime',
+    ];
+
+    public function hasPaid(): bool
+    {
+        return $this->payment_status === 'completed' && $this->paid_at !== null;
+    }
 
     public function user(): BelongsTo
     {

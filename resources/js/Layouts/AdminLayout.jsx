@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import { ChevronDown, LayoutDashboard, HeartPulse, Microscope, Newspaper, Image, Briefcase, Library, FileText, Users } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, HeartPulse, Microscope, Newspaper, Image, Briefcase, Library, FileText, Users, CreditCard } from 'lucide-react';
 
 const Item = ({ href, active, icon: Icon, children }) => {
     return (
@@ -108,6 +108,7 @@ export default function AdminLayout({ title, children }) {
                 ],
             },
             { type: 'item', label: 'Users Management', href: route('admin.users.index'), icon: Users, active: route().current('admin.users.index') || route().current('admin.users.edit') },
+            { type: 'item', label: 'Payments', href: route('admin.payments.index'), icon: CreditCard, active: route().current('admin.payments.*') },
             { type: 'item', label: 'PT Library', href: route('pt-library'), icon: Library, active: route().current('pt-library') },
             { type: 'item', label: 'Docs', href: route('docs.icons'), icon: FileText, active: route().current('docs.icons') },
         ],

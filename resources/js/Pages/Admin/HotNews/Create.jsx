@@ -11,9 +11,10 @@ export default function Create({ categories = [] }) {
         category: categories?.[0]?.name || 'General',
         author_name: 'PhysioPlanet Editor',
         is_hot: false,
+        image: null,
     });
 
-    // Transform is_hot to boolean before submission
+    // Transform data before submission
     form.transform((data) => ({
         ...data,
         is_hot: data.is_hot === true || data.is_hot === 'on' || data.is_hot === 1,
@@ -26,6 +27,7 @@ export default function Create({ categories = [] }) {
         form.clearErrors();
         
         form.post(route('admin.hot-news.store'), {
+            forceFormData: true,
             onError: (errors) => {
                 console.log('Validation errors:', errors);
             },
@@ -133,6 +135,21 @@ export default function Create({ categories = [] }) {
                         />
                         {form.errors.author_name ? (
                             <div className="mt-1 text-xs font-bold text-rose-600">{form.errors.author_name}</div>
+                        ) : null}
+                    </div>
+
+                    <div className="md:col-span-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">
+                            Cover Image <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => form.setData('image', e.target.files[0])}
+                            className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                        />
+                        {form.errors.image ? (
+                            <div className="mt-1 text-xs font-bold text-rose-600">{form.errors.image}</div>
                         ) : null}
                     </div>
 

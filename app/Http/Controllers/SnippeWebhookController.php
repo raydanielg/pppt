@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OpportunityApplication;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -48,18 +49,54 @@ class SnippeWebhookController
 
         $metadata = $data['metadata'] ?? [];
         $userId = $metadata['user_id'] ?? null;
+        $purpose = $metadata['purpose'] ?? 'membership';
+        $opportunityId = $metadata['opportunity_id'] ?? null;
 
         if (! $type || ! $userId) {
             return response('Missing required fields', 200);
         }
 
+        $reference = $data['reference'] ?? null;
+
+        // Handle job application payments
+        if ($purpose === 'job_application' && $opportunityId) {
+            $application = OpportunityApplication::query()
+                ->where('user_id', $userId)
+                ->where('opportunity_id', $opportunityId)
+                ->where('payment_reference', $reference)
+                ->first();
+
+            if (! $application) {
+                return response('Application not found', 200);
+            }
+
+            if ($type === 'payment.completed') {
+                $application->update([
+                    'payment_status' => 'completed',
+                    'paid_at' => now(),
+                ]);
+                return response('OK', 200);
+            }
+
+            if ($type === 'payment.failed') {
+                $application->update(['payment_status' => 'failed']);
+                return response('OK', 200);
+            }
+
+            if ($type === 'payment.expired' || $type === 'payment.voided') {
+                $application->update(['payment_status' => 'expired']);
+                return response('OK', 200);
+            }
+
+            return response('OK', 200);
+        }
+
+        // Handle membership payments (default)
         $user = User::find($userId);
 
         if (! $user) {
             return response('User not found', 200);
         }
-
-        $reference = $data['reference'] ?? null;
 
         if ($type === 'payment.completed') {
             $user->membership_payment_status = 'completed';

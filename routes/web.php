@@ -133,6 +133,9 @@ Route::middleware(['auth', 'onboarding', 'membership_payment'])->group(function 
     Route::post('/opportunities/{id}/apply', [OpportunityApplicationController::class, 'store'])->name('opportunities.apply.store');
     Route::get('/opportunities/{id}/thank-you', [OpportunityApplicationController::class, 'thankYou'])->name('opportunities.thank-you');
 
+    Route::post('/opportunities/{id}/payment/start', [OpportunityApplicationController::class, 'startPayment'])->name('opportunities.payment.start');
+    Route::get('/opportunities/{id}/payment/status', [OpportunityApplicationController::class, 'checkPaymentStatus'])->name('opportunities.payment.status');
+
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('/', function () {
             return Inertia::render('Admin/Dashboard');

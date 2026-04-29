@@ -12,12 +12,16 @@ export default function Edit({ news, categories = [] }) {
         category: news.category || 'General',
         author_name: news.author_name || 'PhysioPlanet Editor',
         is_hot: news.is_hot || false,
+        image: null,
+        _method: 'PUT',
     });
 
     const submit = (e) => {
         e.preventDefault();
         form.clearErrors();
-        form.put(route('admin.hot-news.update', news.id), {
+        // Use POST with _method PUT to support file uploads in Laravel
+        form.post(route('admin.hot-news.update', news.id), {
+            forceFormData: true,
             onError: (errors) => {
                 console.log('Validation errors:', errors);
             },
@@ -123,6 +127,28 @@ export default function Edit({ news, categories = [] }) {
                         />
                         {form.errors.author_name ? (
                             <div className="mt-1 text-xs font-bold text-rose-600">{form.errors.author_name}</div>
+                        ) : null}
+                    </div>
+
+                    <div className="md:col-span-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">
+                            Cover Image (Leave empty to keep current)
+                        </label>
+                        <div className="mt-2 flex items-center gap-4">
+                            {news.image && (
+                                <div className="h-16 w-24 shrink-0 overflow-hidden rounded-xl border border-gray-200">
+                                    <img src={news.image} alt="Current" className="h-full w-full object-cover" />
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => form.setData('image', e.target.files[0])}
+                                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                            />
+                        </div>
+                        {form.errors.image ? (
+                            <div className="mt-1 text-xs font-bold text-rose-600">{form.errors.image}</div>
                         ) : null}
                     </div>
 

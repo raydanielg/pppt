@@ -81,6 +81,9 @@ export default function Index({ filters, payments }) {
                                     User
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
+                                    Type
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
                                     Status
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
@@ -90,42 +93,52 @@ export default function Index({ filters, payments }) {
                                     Paid at
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
-                                    Membership
+                                    Details
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {rows.map((r) => (
-                                <tr key={r.id} className="hover:bg-gray-50">
+                            {rows.map((r, idx) => (
+                                <tr key={idx} className="hover:bg-gray-50">
                                     <td className="px-4 py-3">
                                         <div className="text-sm font-black text-gray-900">{r.name}</div>
                                         <div className="text-xs text-gray-500">{r.email}</div>
                                     </td>
                                     <td className="px-4 py-3">
+                                        <span className={
+                                            'inline-flex rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ' +
+                                            (r.type === 'registration'
+                                                ? 'bg-blue-50 text-blue-700'
+                                                : 'bg-purple-50 text-purple-700')
+                                        }>
+                                            {r.type.replace('_', ' ')}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
                                         <span
                                             className={
                                                 'inline-flex rounded-full px-2 py-1 text-xs font-black ' +
-                                                (r.payment_status === 'completed'
+                                                (r.status === 'completed'
                                                     ? 'bg-emerald-50 text-emerald-700'
-                                                    : r.payment_status === 'failed' || r.payment_status === 'expired'
+                                                    : r.status === 'failed' || r.status === 'expired'
                                                       ? 'bg-red-50 text-red-700'
                                                       : 'bg-gray-100 text-gray-700')
                                             }
                                         >
-                                            {r.payment_status || '—'}
+                                            {r.status || '—'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-700">{r.payment_reference || '—'}</td>
+                                    <td className="px-4 py-3 text-sm text-gray-700 font-mono">{r.reference || '—'}</td>
                                     <td className="px-4 py-3 text-sm text-gray-700">{r.paid_at ? new Date(r.paid_at).toLocaleString() : '—'}</td>
                                     <td className="px-4 py-3 text-sm text-gray-700">
-                                        {r.membership_number || '—'}
+                                        {r.extra_info || (r.type === 'registration' ? 'Membership Registration' : '—')}
                                     </td>
                                 </tr>
                             ))}
 
                             {rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-4 py-8 text-center text-sm text-gray-500">
+                                    <td colSpan="6" className="px-4 py-8 text-center text-sm text-gray-500">
                                         No payments found.
                                     </td>
                                 </tr>
