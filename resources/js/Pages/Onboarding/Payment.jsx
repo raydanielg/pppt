@@ -6,6 +6,7 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 function normalizePhone(v) {
     const cleaned = (v || '').replace(/\s+/g, '').replace(/^\+/, '');
@@ -42,11 +43,10 @@ export default function Payment({ amount, currency, payment }) {
 
     async function pollOnce() {
         try {
-            const res = await fetch(route('onboarding.payment.status'), {
-                credentials: 'same-origin',
+            const res = await axios.get(route('onboarding.payment.status'), {
                 headers: { Accept: 'application/json' },
             });
-            const json = await res.json();
+            const json = res.data;
             const st = json?.data?.status;
             const ref = json?.data?.reference;
 
@@ -149,12 +149,6 @@ export default function Payment({ amount, currency, payment }) {
     const startPayment = async (e) => {
         e.preventDefault();
 
-        const csrfToken = getCsrfToken();
-        if (!csrfToken) {
-            Swal.fire('Error', 'CSRF token not found. Please refresh the page.', 'error');
-            return;
-        }
-
         setApiError(null);
         setSubmitting(true);
 
@@ -169,24 +163,14 @@ export default function Payment({ amount, currency, payment }) {
         });
 
         try {
-            const res = await fetch(route('onboarding.payment.start'), {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-                body: JSON.stringify({
-                    payment_type: 'mobile',
-                    phone_number: normalizePhone(phone),
-                }),
+            const res = await axios.post(route('onboarding.payment.start'), {
+                payment_type: 'mobile',
+                phone_number: normalizePhone(phone),
             });
 
-            const json = await res.json();
+            const json = res.data;
 
-            if (!res.ok || json?.status === 'error') {
+            if (json?.status === 'error') {
                 setSubmitting(false);
                 setApiError(json?.message || 'Failed to start payment');
                 Swal.fire({
@@ -220,8 +204,9 @@ export default function Payment({ amount, currency, payment }) {
 
         } catch (err) {
             setSubmitting(false);
-            setApiError('Failed to start payment');
-            Swal.fire('Error', 'Failed to start payment. Please try again.', 'error');
+            const message = err.response?.data?.message || 'Failed to start payment';
+            setApiError(message);
+            Swal.fire('Error', message, 'error');
         } finally {
             setSubmitting(false);
         }
