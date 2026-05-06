@@ -5,6 +5,7 @@ import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Swal from 'sweetalert2';
 
 function normalizePhone(v) {
     const cleaned = (v || '').replace(/\s+/g, '').replace(/^\+/, '');
@@ -40,18 +41,23 @@ export default function Payment({ amount, currency, payment }) {
     }, [paid, phone]);
 
     async function pollOnce() {
-        const res = await fetch(route('onboarding.payment.status'), {
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json' },
-        });
-        const json = await res.json();
-        const st = json?.data?.status;
-        const ref = json?.data?.reference;
+        try {
+            const res = await fetch(route('onboarding.payment.status'), {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+            });
+            const json = await res.json();
+            const st = json?.data?.status;
+            const ref = json?.data?.reference;
 
-        if (ref) setReference(ref);
-        if (st) setStatus(st);
+            if (ref) setReference(ref);
+            if (st) setStatus(st);
 
-        return st;
+            return st;
+        } catch (e) {
+            console.error('Polling error:', e);
+            return null;
+        }
     }
 
     useEffect(() => {
@@ -60,15 +66,49 @@ export default function Payment({ amount, currency, payment }) {
         let cancelled = false;
 
         async function run() {
-            await pollOnce();
+            const initialSt = await pollOnce();
 
             if (cancelled) return;
 
+            if (initialSt === 'pending') {
+                Swal.fire({
+                    title: 'Payment in progress',
+                    text: 'Please check your phone for the PIN prompt to complete payment.',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            }
+
             pollTimer.current = setInterval(async () => {
                 const st = await pollOnce();
-                if (st === 'completed' && pollTimer.current) {
-                    clearInterval(pollTimer.current);
-                    pollTimer.current = null;
+                if (st === 'completed') {
+                    if (pollTimer.current) {
+                        clearInterval(pollTimer.current);
+                        pollTimer.current = null;
+                    }
+                    Swal.fire({
+                        title: 'Payment Successful!',
+                        text: 'Your membership payment has been received.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = route('onboarding.confirm');
+                    });
+                } else if (st === 'failed' || st === 'expired') {
+                    if (pollTimer.current) {
+                        clearInterval(pollTimer.current);
+                        pollTimer.current = null;
+                    }
+                    Swal.fire({
+                        title: 'Payment Failed',
+                        text: 'The payment was not completed. Please try again.',
+                        icon: 'error'
+                    });
                 }
             }, 3500);
         }
@@ -84,27 +124,27 @@ export default function Payment({ amount, currency, payment }) {
         };
     }, [reference, paid]);
 
-    useEffect(() => {
-        if (!paid) return;
-
-        const t = setTimeout(() => {
-            window.location.href = route('onboarding.confirm');
-        }, 900);
-
-        return () => clearTimeout(t);
-    }, [paid]);
-
     const startPayment = async (e) => {
         e.preventDefault();
 
         const csrfToken = getCsrfToken();
         if (!csrfToken) {
-            setApiError('CSRF token not found. Please refresh the page.');
+            Swal.fire('Error', 'CSRF token not found. Please refresh the page.', 'error');
             return;
         }
 
         setApiError(null);
         setSubmitting(true);
+
+        Swal.fire({
+            title: 'Initiating Payment',
+            text: 'Starting your payment request...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
         try {
             const res = await fetch(route('onboarding.payment.start'), {
@@ -118,15 +158,20 @@ export default function Payment({ amount, currency, payment }) {
                 },
                 body: JSON.stringify({
                     payment_type: 'mobile',
-                    phone_number:
-                        normalizePhone(phone),
+                    phone_number: normalizePhone(phone),
                 }),
             });
 
             const json = await res.json();
 
             if (!res.ok || json?.status === 'error') {
+                setSubmitting(false);
                 setApiError(json?.message || 'Failed to start payment');
+                Swal.fire({
+                    title: 'Payment Error',
+                    text: json?.message || 'Failed to start payment',
+                    icon: 'error'
+                });
                 return;
             }
 
@@ -135,9 +180,26 @@ export default function Payment({ amount, currency, payment }) {
             if (data?.reference) setReference(data.reference);
             if (data?.status) setStatus(data.status);
 
-            await pollOnce();
+            // Close the "Initiating" modal, it will be replaced by the polling modal in the useEffect
+            Swal.close();
+            
+            if (data.status === 'pending') {
+                Swal.fire({
+                    title: 'Payment Initiated',
+                    text: 'Please check your phone for the USSD prompt.',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            }
+
         } catch (err) {
+            setSubmitting(false);
             setApiError('Failed to start payment');
+            Swal.fire('Error', 'Failed to start payment. Please try again.', 'error');
         } finally {
             setSubmitting(false);
         }

@@ -81,6 +81,9 @@ export default function Index({ filters, payments }) {
                                     User
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
+                                    Amount
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
                                     Type
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
@@ -103,11 +106,15 @@ export default function Index({ filters, payments }) {
                                     <td className="px-4 py-3">
                                         <div className="text-sm font-black text-gray-900">{r.name}</div>
                                         <div className="text-xs text-gray-500">{r.email}</div>
+                                        {r.phone && <div className="text-[10px] text-gray-400">Phone: {r.phone}</div>}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="text-sm font-bold text-gray-900">{r.amount}</div>
                                     </td>
                                     <td className="px-4 py-3">
                                         <span className={
                                             'inline-flex rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ' +
-                                            (r.type === 'registration'
+                                            (r.type === 'membership'
                                                 ? 'bg-blue-50 text-blue-700'
                                                 : 'bg-purple-50 text-purple-700')
                                         }>
@@ -130,15 +137,15 @@ export default function Index({ filters, payments }) {
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-700 font-mono">{r.reference || '—'}</td>
                                     <td className="px-4 py-3 text-sm text-gray-700">{r.paid_at ? new Date(r.paid_at).toLocaleString() : '—'}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-700">
-                                        {r.extra_info || (r.type === 'registration' ? 'Membership Registration' : '—')}
+                                    <td className="px-4 py-3 text-sm text-gray-700 truncate max-w-[200px]" title={r.extra_info}>
+                                        {r.extra_info}
                                     </td>
                                 </tr>
                             ))}
 
                             {rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="px-4 py-8 text-center text-sm text-gray-500">
+                                    <td colSpan="7" className="px-4 py-8 text-center text-sm text-gray-500">
                                         No payments found.
                                     </td>
                                 </tr>

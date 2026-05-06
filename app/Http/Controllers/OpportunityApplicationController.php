@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Opportunity;
 use App\Models\OpportunityApplication;
+use App\Models\PaymentAttempt;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -157,6 +158,16 @@ class OpportunityApplicationController extends Controller
             ],
         ];
 
+        $attempt = PaymentAttempt::create([
+            'user_id' => $user->id,
+            'type' => 'job_application',
+            'source_id' => $opportunity->id,
+            'amount' => 10000,
+            'phone_number' => $validated['phone_number'],
+            'status' => 'initiated',
+            'metadata' => ['idempotency_key' => $idempotencyKey],
+        ]);
+
         try {
             $response = Http::connectTimeout(10)
                 ->timeout(60)
@@ -185,6 +196,12 @@ class OpportunityApplicationController extends Controller
         }
 
         $data = $response->json('data') ?? [];
+
+        $attempt->update([
+            'reference' => $data['reference'] ?? null,
+            'status' => $data['status'] ?? 'pending',
+            'metadata' => array_merge($attempt->metadata ?? [], ['api_response' => $data]),
+        ]);
 
         // Create application record with pending payment
         OpportunityApplication::create([

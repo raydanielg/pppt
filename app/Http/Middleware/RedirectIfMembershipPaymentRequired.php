@@ -25,11 +25,6 @@ class RedirectIfMembershipPaymentRequired
             return $next($request);
         }
 
-        // Users with ID >= 250 must pay (ID-based cutoff)
-        if ($user->id < 250) {
-            return $next($request);
-        }
-
         if ($user->hasPaidMembership()) {
             return $next($request);
         }

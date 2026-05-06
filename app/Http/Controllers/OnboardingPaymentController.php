@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PaymentAttempt;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -87,6 +88,15 @@ class OnboardingPaymentController
             ],
         ];
 
+        $attempt = PaymentAttempt::create([
+            'user_id' => $user->id,
+            'type' => 'membership',
+            'amount' => 5000,
+            'phone_number' => $phone,
+            'status' => 'initiated',
+            'metadata' => ['idempotency_key' => $idempotencyKey],
+        ]);
+
         try {
             $response = Http::connectTimeout(10)
                 ->timeout(60)
@@ -115,6 +125,12 @@ class OnboardingPaymentController
         }
 
         $data = $response->json('data') ?? [];
+
+        $attempt->update([
+            'reference' => $data['reference'] ?? null,
+            'status' => $data['status'] ?? 'pending',
+            'metadata' => array_merge($attempt->metadata ?? [], ['api_response' => $data]),
+        ]);
 
         $user->update([
             'membership_payment_status' => $data['status'] ?? 'pending',

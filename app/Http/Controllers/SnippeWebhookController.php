@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OpportunityApplication;
 use App\Models\User;
+use App\Models\PaymentAttempt;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -57,6 +58,26 @@ class SnippeWebhookController
         }
 
         $reference = $data['reference'] ?? null;
+
+        // Update PaymentAttempt if exists
+        if ($reference) {
+            $attempt = PaymentAttempt::where('reference', $reference)->first();
+            if ($attempt) {
+                $statusMap = [
+                    'payment.completed' => 'completed',
+                    'payment.failed' => 'failed',
+                    'payment.expired' => 'expired',
+                    'payment.voided' => 'voided',
+                ];
+                $newStatus = $statusMap[$type] ?? $attempt->status;
+                
+                $attempt->update([
+                    'status' => $newStatus,
+                    'paid_at' => ($type === 'payment.completed') ? now() : $attempt->paid_at,
+                    'metadata' => array_merge($attempt->metadata ?? [], ['webhook_event' => $event]),
+                ]);
+            }
+        }
 
         // Handle job application payments
         if ($purpose === 'job_application' && $opportunityId) {
