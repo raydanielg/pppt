@@ -76,9 +76,23 @@ export default function Payment({ amount, currency, payment }) {
                     text: 'Please check your phone for the PIN prompt to complete payment.',
                     icon: 'info',
                     allowOutsideClick: false,
-                    showConfirmButton: false,
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel polling',
+                    confirmButtonText: 'Check again',
+                    showConfirmButton: true,
                     didOpen: () => {
                         Swal.showLoading();
+                    }
+                }).then((result) => {
+                    if (result.isDismissed) {
+                        // User clicked cancel
+                        cancelled = true;
+                        if (pollTimer.current) {
+                            clearInterval(pollTimer.current);
+                            pollTimer.current = null;
+                        }
+                        setReference(null);
+                        setStatus(null);
                     }
                 });
             }
@@ -106,8 +120,16 @@ export default function Payment({ amount, currency, payment }) {
                     }
                     Swal.fire({
                         title: 'Payment Failed',
-                        text: 'The payment was not completed. Please try again.',
-                        icon: 'error'
+                        text: 'The payment was not completed. Would you like to try again?',
+                        icon: 'error',
+                        showCancelButton: true,
+                        confirmButtonText: 'Try Again',
+                        cancelButtonText: 'Close'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            setReference(null);
+                            setStatus(null);
+                        }
                     });
                 }
             }, 3500);

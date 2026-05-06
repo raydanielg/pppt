@@ -22,6 +22,14 @@ class OnboardingPaymentController
             return redirect()->route('onboarding.confirm');
         }
 
+        // Check for any pending or initiated attempt in the last 30 minutes
+        $latestAttempt = PaymentAttempt::where('user_id', $user->id)
+            ->where('type', 'membership')
+            ->whereIn('status', ['initiated', 'pending'])
+            ->where('created_at', '>=', now()->subMinutes(30))
+            ->latest()
+            ->first();
+
         return Inertia::render('Onboarding/Payment', [
             'amount' => 5000,
             'currency' => 'TZS',
@@ -30,6 +38,12 @@ class OnboardingPaymentController
                 'reference' => $user->membership_payment_reference,
                 'type' => $user->membership_payment_type,
                 'paid_at' => $user->membership_paid_at,
+                'active_attempt' => $latestAttempt ? [
+                    'reference' => $latestAttempt->reference,
+                    'status' => $latestAttempt->status,
+                    'created_at' => $latestAttempt->created_at,
+                    'expires_at' => $latestAttempt->created_at->addMinutes(30),
+                ] : null,
             ],
         ]);
     }
@@ -49,9 +63,23 @@ class OnboardingPaymentController
             ]);
         }
 
+        // Don't allow multiple active attempts within 2 minutes to prevent spam
+        $recentAttempt = PaymentAttempt::where('user_id', $user->id)
+            ->where('type', 'membership')
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->exists();
+
+        if ($recentAttempt) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 429,
+                'message' => 'Please wait a moment before trying again.',
+            ], 429);
+        }
+
         $validated = $request->validate([
             'payment_type' => ['required', 'in:mobile'],
-            'phone_number' => ['nullable', 'string', 'max:30'],
+            'phone_number' => ['required', 'string', 'max:30'],
         ]);
 
         $apiKey = config('services.snippe.api_key');
@@ -65,7 +93,7 @@ class OnboardingPaymentController
         }
 
         $paymentType = $validated['payment_type'];
-        $phone = $validated['phone_number'] ?? null;
+        $phone = $validated['phone_number'];
 
         $idempotencyKey = (string) Str::uuid();
 
@@ -108,6 +136,7 @@ class OnboardingPaymentController
                 ])
                 ->post('https://api.snippe.sh/v1/payments', $payload);
         } catch (ConnectionException $e) {
+            $attempt->update(['status' => 'failed', 'metadata' => array_merge($attempt->metadata ?? [], ['error' => 'timeout'])]);
             return response()->json([
                 'status' => 'error',
                 'code' => 504,
@@ -116,11 +145,17 @@ class OnboardingPaymentController
         }
 
         if (! $response->successful()) {
+            $errorData = $response->json();
+            $attempt->update([
+                'status' => 'failed',
+                'metadata' => array_merge($attempt->metadata ?? [], ['api_error' => $errorData])
+            ]);
+            
             return response()->json([
                 'status' => 'error',
                 'code' => $response->status(),
                 'message' => $response->json('message') ?? 'Failed to create payment',
-                'data' => $response->json(),
+                'data' => $errorData,
             ], 422);
         }
 
@@ -141,13 +176,34 @@ class OnboardingPaymentController
         return response()->json([
             'status' => 'success',
             'code' => 201,
-            'data' => $data,
+            'data' => array_merge($data, [
+                'expires_at' => now()->addMinutes(30),
+            ]),
         ]);
     }
 
     public function status(Request $request): JsonResponse
     {
         $user = $request->user();
+
+        // If user already marked as paid in DB, return success immediately
+        if ($user->hasPaidMembership()) {
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'data' => [
+                    'status' => 'completed',
+                    'has_paid' => true,
+                    'paid_at' => $user->membership_paid_at,
+                ],
+            ]);
+        }
+
+        // Check if there was a cancellation or failure
+        $latestAttempt = PaymentAttempt::where('user_id', $user->id)
+            ->where('type', 'membership')
+            ->latest()
+            ->first();
 
         return response()->json([
             'status' => 'success',
@@ -158,6 +214,8 @@ class OnboardingPaymentController
                 'type' => $user->membership_payment_type,
                 'paid_at' => $user->membership_paid_at,
                 'has_paid' => $user->hasPaidMembership(),
+                'latest_attempt_status' => $latestAttempt?->status,
+                'is_expired' => $latestAttempt && $latestAttempt->created_at->addMinutes(30)->isPast(),
             ],
         ]);
     }

@@ -10,11 +10,13 @@ use Inertia\Response;
 
 class OnboardingController
 {
-    public function country(Request $request): Response
+    public function country(Request $request): RedirectResponse
     {
-        return Inertia::render('Onboarding/Country', [
-            'country' => $request->user()->country,
+        $request->user()->update([
+            'country' => 'Tanzania',
         ]);
+
+        return redirect()->route('onboarding.payment');
     }
 
     public function storeCountry(Request $request): RedirectResponse

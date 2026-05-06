@@ -25,6 +25,10 @@ class RedirectIfOnboardingIncomplete
             return $next($request);
         }
 
-        return redirect()->route('onboarding.country');
+        if (! $user->country) {
+            return redirect()->route('onboarding.country');
+        }
+
+        return $next($request);
     }
 }
