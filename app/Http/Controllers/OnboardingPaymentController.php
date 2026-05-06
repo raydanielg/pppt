@@ -31,7 +31,7 @@ class OnboardingPaymentController
             ->first();
 
         return Inertia::render('Onboarding/Payment', [
-            'amount' => 5000,
+            'amount' => 10000,
             'currency' => 'TZS',
             'payment' => [
                 'status' => $user->membership_payment_status,
@@ -100,7 +100,7 @@ class OnboardingPaymentController
         $payload = [
             'payment_type' => $paymentType,
             'details' => [
-                'amount' => 5000,
+                'amount' => 10000,
                 'currency' => 'TZS',
             ],
             'phone_number' => $phone,
@@ -119,7 +119,7 @@ class OnboardingPaymentController
         $attempt = PaymentAttempt::create([
             'user_id' => $user->id,
             'type' => 'membership',
-            'amount' => 5000,
+            'amount' => 10000,
             'phone_number' => $phone,
             'status' => 'initiated',
             'metadata' => ['idempotency_key' => $idempotencyKey],
