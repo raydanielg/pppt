@@ -99,6 +99,10 @@ export default function Payment({ amount, currency, payment }) {
 
             pollTimer.current = setInterval(async () => {
                 const st = await pollOnce();
+                
+                // Also check for expiration manually on the frontend
+                const isExpired = payment?.active_attempt?.expires_at && new Date(payment.active_attempt.expires_at) < new Date();
+
                 if (st === 'completed') {
                     if (pollTimer.current) {
                         clearInterval(pollTimer.current);
@@ -113,14 +117,23 @@ export default function Payment({ amount, currency, payment }) {
                     }).then(() => {
                         window.location.href = route('onboarding.confirm');
                     });
-                } else if (st === 'failed' || st === 'expired') {
+                } else if (st === 'failed' || st === 'expired' || isExpired) {
                     if (pollTimer.current) {
                         clearInterval(pollTimer.current);
                         pollTimer.current = null;
                     }
+                    
+                    let errorTitle = 'Payment Failed';
+                    let errorText = 'The payment was not completed. Would you like to try again?';
+                    
+                    if (st === 'expired' || isExpired) {
+                        errorTitle = 'Payment Expired';
+                        errorText = 'The payment request has expired (1 minute limit). Please try again.';
+                    }
+
                     Swal.fire({
-                        title: 'Payment Failed',
-                        text: 'The payment was not completed. Would you like to try again?',
+                        title: errorTitle,
+                        text: errorText,
                         icon: 'error',
                         showCancelButton: true,
                         confirmButtonText: 'Try Again',

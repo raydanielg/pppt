@@ -22,11 +22,11 @@ class OnboardingPaymentController
             return redirect()->route('onboarding.confirm');
         }
 
-        // Check for any pending or initiated attempt in the last 30 minutes
+        // Check for any pending or initiated attempt in the last 1 minute
         $latestAttempt = PaymentAttempt::where('user_id', $user->id)
             ->where('type', 'membership')
             ->whereIn('status', ['initiated', 'pending'])
-            ->where('created_at', '>=', now()->subMinutes(30))
+            ->where('created_at', '>=', now()->subMinute())
             ->latest()
             ->first();
 
@@ -42,7 +42,7 @@ class OnboardingPaymentController
                     'reference' => $latestAttempt->reference,
                     'status' => $latestAttempt->status,
                     'created_at' => $latestAttempt->created_at,
-                    'expires_at' => $latestAttempt->created_at->addMinutes(30),
+                    'expires_at' => $latestAttempt->created_at->addMinute(),
                 ] : null,
             ],
         ]);
@@ -177,7 +177,7 @@ class OnboardingPaymentController
             'status' => 'success',
             'code' => 201,
             'data' => array_merge($data, [
-                'expires_at' => now()->addMinutes(30),
+                'expires_at' => now()->addMinute(),
             ]),
         ]);
     }
@@ -215,7 +215,7 @@ class OnboardingPaymentController
                 'paid_at' => $user->membership_paid_at,
                 'has_paid' => $user->hasPaidMembership(),
                 'latest_attempt_status' => $latestAttempt?->status,
-                'is_expired' => $latestAttempt && $latestAttempt->created_at->addMinutes(30)->isPast(),
+                'is_expired' => $latestAttempt && $latestAttempt->created_at->addMinute()->isPast(),
             ],
         ]);
     }
