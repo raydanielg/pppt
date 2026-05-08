@@ -46,14 +46,7 @@ export default function Payment({ amount, currency, payment }) {
             const res = await axios.get(route('onboarding.payment.status'), {
                 headers: { Accept: 'application/json' },
             });
-            const json = res.data;
-            const st = json?.data?.status;
-            const ref = json?.data?.reference;
-
-            if (ref) setReference(ref);
-            if (st) setStatus(st);
-
-            return st;
+            return res.data?.data;
         } catch (e) {
             console.error('Polling error:', e);
             return null;
@@ -66,9 +59,12 @@ export default function Payment({ amount, currency, payment }) {
         let cancelled = false;
 
         async function run() {
-            const initialSt = await pollOnce();
+            const data = await pollOnce();
+            if (cancelled || !data) return;
 
-            if (cancelled) return;
+            const initialSt = data.status;
+            if (data.reference) setReference(data.reference);
+            if (initialSt) setStatus(initialSt);
 
             if (initialSt === 'pending') {
                 Swal.fire({
@@ -98,8 +94,21 @@ export default function Payment({ amount, currency, payment }) {
             }
 
             pollTimer.current = setInterval(async () => {
-                const st = await pollOnce();
-                
+                if (cancelled) {
+                    if (pollTimer.current) {
+                        clearInterval(pollTimer.current);
+                        pollTimer.current = null;
+                    }
+                    return;
+                }
+
+                const data = await pollOnce();
+                if (cancelled || !data) return;
+
+                const st = data.status;
+                if (data.reference) setReference(data.reference);
+                if (st) setStatus(st);
+
                 // Also check for expiration manually on the frontend
                 const isExpired = payment?.active_attempt?.expires_at && new Date(payment.active_attempt.expires_at) < new Date();
 
@@ -196,24 +205,15 @@ export default function Payment({ amount, currency, payment }) {
 
             const data = json?.data || {};
 
-            if (data?.reference) setReference(data.reference);
-            if (data?.status) setStatus(data.status);
-
-            // Close the "Initiating" modal, it will be replaced by the polling modal in the useEffect
-            Swal.close();
-            
-            if (data.status === 'pending') {
-                Swal.fire({
-                    title: 'Payment Initiated',
-                    text: 'Please check your phone for the USSD prompt.',
-                    icon: 'info',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
+            if (data?.reference) {
+                setReference(data.reference);
+                setStatus(data.status || 'pending');
             }
+
+            // Close the "Initiating" modal. 
+            // The useEffect will handle opening the "Payment in progress" modal 
+            // as soon as it detects the new reference.
+            Swal.close();
 
         } catch (err) {
             setSubmitting(false);
