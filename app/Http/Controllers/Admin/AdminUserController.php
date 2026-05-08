@@ -37,6 +37,7 @@ class AdminUserController extends Controller
                 'email' => $u->email,
                 'country' => $u->country,
                 'membership_number' => $u->membership_number,
+                'membership_payment_status' => $u->membership_payment_status,
                 'roles' => $u->roles->pluck('name')->values(),
             ];
         });
@@ -47,6 +48,37 @@ class AdminUserController extends Controller
             ],
             'users' => $paginated,
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'password' => ['required', 'string', 'min:8', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'membership_number' => ['nullable', 'string', 'max:255'],
+            'membership_payment_status' => ['nullable', 'string', 'max:255'],
+            'onboarding_completed' => ['nullable', 'boolean'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['string', 'max:255'],
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'country' => $data['country'] ?? 'Tanzania',
+            'membership_number' => $data['membership_number'] ?? null,
+            'membership_payment_status' => $data['membership_payment_status'] ?? 'pending',
+            'onboarding_completed' => (bool) ($data['onboarding_completed'] ?? false),
+        ]);
+
+        if (! empty($data['roles'])) {
+            $user->syncRoles($data['roles']);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
     public function edit(User $user): Response
@@ -60,6 +92,7 @@ class AdminUserController extends Controller
                 'email' => $user->email,
                 'country' => $user->country,
                 'membership_number' => $user->membership_number,
+                'membership_payment_status' => $user->membership_payment_status,
                 'onboarding_completed' => (bool) $user->onboarding_completed,
                 'roles' => $user->roles->pluck('name')->values(),
             ],
@@ -74,6 +107,7 @@ class AdminUserController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'country' => ['nullable', 'string', 'max:255'],
             'membership_number' => ['nullable', 'string', 'max:255'],
+            'membership_payment_status' => ['nullable', 'string', 'max:255'],
             'onboarding_completed' => ['nullable', 'boolean'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', 'max:255'],
@@ -85,6 +119,7 @@ class AdminUserController extends Controller
             'email' => $data['email'],
             'country' => $data['country'] ?? null,
             'membership_number' => $data['membership_number'] ?? null,
+            'membership_payment_status' => $data['membership_payment_status'] ?? 'pending',
             'onboarding_completed' => (bool) ($data['onboarding_completed'] ?? false),
         ]);
 

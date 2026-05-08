@@ -216,6 +216,7 @@ Route::middleware(['auth', 'onboarding', 'membership_payment'])->group(function 
 
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
+            Route::post('/', [AdminUserController::class, 'store'])->name('store');
             Route::get('/{user}/edit', [AdminUserController::class, 'edit'])->name('edit');
             Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
         });

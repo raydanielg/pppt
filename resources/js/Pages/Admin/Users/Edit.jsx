@@ -23,6 +23,7 @@ export default function Edit({ user, allRoles = [] }) {
         email: user.email || '',
         country: user.country || '',
         membership_number: user.membership_number || '',
+        membership_payment_status: user.membership_payment_status || 'pending',
         onboarding_completed: !!user.onboarding_completed,
         roles: Array.isArray(user.roles) ? user.roles : [],
         password: '',
@@ -116,6 +117,22 @@ export default function Edit({ user, allRoles = [] }) {
                             onChange={(e) => form.setData('membership_number', e.target.value)}
                             className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500"
                         />
+                    </div>
+
+                    <div>
+                        <label className="text-xs font-black uppercase tracking-widest text-gray-500">Payment Status</label>
+                        <select
+                            value={form.data.membership_payment_status}
+                            onChange={(e) => form.setData('membership_payment_status', e.target.value)}
+                            className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                        >
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                        {form.errors.membership_payment_status ? (
+                            <div className="mt-1 text-xs font-bold text-rose-600">{form.errors.membership_payment_status}</div>
+                        ) : null}
                     </div>
 
                     <div className="md:col-span-2 flex flex-wrap gap-2">
